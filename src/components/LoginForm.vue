@@ -26,7 +26,7 @@ function loginSubmit(form) {
         text: `${responseJSON.message}`,
         duration: 2000,
       }).showToast();
-      router.push({ name: 'dashboard' });
+      router.push({ name: 'products' });
     })
     .catch((err) => {
       Toastify({

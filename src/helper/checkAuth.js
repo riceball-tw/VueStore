@@ -1,10 +1,6 @@
-async function checkAuth() {
-  // Get Cookie
-  const authToken = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('hexToken'))
-    ?.split('=')[1];
+import authToken from '@/helper/getAuthToken';
 
+async function checkAuth() {
   const response = await fetch(`${import.meta.env.VITE_APP_API}/api/user/check`, {
     method: 'POST',
     headers: {
