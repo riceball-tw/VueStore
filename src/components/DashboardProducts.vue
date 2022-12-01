@@ -1,5 +1,14 @@
 <template>
   <h1>產品列表</h1>
+
+  <div>
+    <ProductModal v-model="show" @confirm="confirm" @cancel="cancel">
+      <template v-slot:title>Hello, vue-final-modal</template>
+    </ProductModal>
+
+    <button @click="show = true">Open modal</button>
+  </div>
+
   <table>
     <thead>
       <tr>
@@ -30,9 +39,10 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import getAuthToken from '@/helper/getAuthToken';
+import ProductModal from '@/components/ProductModal.vue';
 
-const { products, pagination } = await getProducts(getAuthToken);
 async function getProducts(authToken) {
   const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
     method: 'GET',
@@ -43,5 +53,13 @@ async function getProducts(authToken) {
   if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
   return responseJSON;
 }
-console.log('products:', products, 'pagination:', pagination);
+
+const { products, pagination } = await getProducts(getAuthToken);
+console.log(products);
+const show = ref(false);
+function confirm() {
+  show.value = !show.value;
+}
+
+function cancel() {}
 </script>
