@@ -2,11 +2,11 @@
   <h1>產品列表</h1>
 
   <div>
-    <ProductModal v-model="show" @confirm="confirm" @cancel="cancel">
-      <template v-slot:title>Hello, vue-final-modal</template>
-    </ProductModal>
+    <productModal v-model="modalState" :product="tempProduct" @confirm="updateProduct" @cancel="closeModal">
+      <template #title>產品</template>
+    </productModal>
 
-    <button @click="show = true">Open modal</button>
+    <button @click="openModal(true)">新增產品</button>
   </div>
 
   <table>
@@ -31,7 +31,7 @@
           <span v-else="product.is_enabled">未啟用</span>
         </td>
         <td>
-          <div><button>編輯</button> <button>刪除</button></div>
+          <div><button @click="openModal(false, product)">編輯</button> <button>刪除</button></div>
         </td>
       </tr>
     </tbody>
@@ -40,8 +40,62 @@
 
 <script setup>
 import { ref } from 'vue';
+import productModal from '@/components/productModal.vue';
 import getAuthToken from '@/helper/getAuthToken';
-import ProductModal from '@/components/ProductModal.vue';
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
+
+const tempProduct = ref({});
+const modalState = ref(false);
+const products = ref([]);
+const pagination = ref({});
+
+function openModal(isNewProductModal, targetProduct) {
+  if (isNewProductModal) {
+    tempProduct.value = {};
+  } else {
+    tempProduct.value = { ...targetProduct };
+  }
+  modalState.value = true;
+}
+
+async function renderProducts() {
+  const remoteProducts = await getProducts(getAuthToken).catch((err) => {
+    Toastify({
+      text: `${err.message}`,
+      duration: 2000,
+    }).showToast();
+  });
+
+  products.value = remoteProducts.products;
+}
+
+async function updateProduct(userInput) {
+  const newProduct = {
+    data: {
+      ...userInput,
+    },
+  };
+  const result = await createProduct(getAuthToken, JSON.stringify(newProduct))
+    .then((responseJSON) => {
+      Toastify({
+        text: `${responseJSON.message}`,
+        duration: 2000,
+      }).showToast();
+    })
+    .catch((err) => {
+      Toastify({
+        text: `${err.message}`,
+        duration: 2000,
+      }).showToast();
+    });
+  closeModal();
+  renderProducts();
+}
+
+function closeModal() {
+  modalState.value = false;
+}
 
 async function getProducts(authToken) {
   const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
@@ -54,12 +108,19 @@ async function getProducts(authToken) {
   return responseJSON;
 }
 
-const { products, pagination } = await getProducts(getAuthToken);
-console.log(products);
-const show = ref(false);
-function confirm() {
-  show.value = !show.value;
+async function createProduct(authToken, newProduct) {
+  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: authToken,
+    },
+    body: newProduct,
+  });
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
 }
-
-function cancel() {}
+renderProducts();
 </script>

@@ -5,8 +5,7 @@
     </span>
     <div class="modal__content">
       <slot :params="params"></slot>
-
-      <form>
+      <form id="productForm" @submit.prevent="$emit('confirm', tempProduct)">
         <!-- Image -->
         <div>
           <label>
@@ -29,26 +28,26 @@
         <div>
           <label>
             標題
-            <input type="text" placeholder="請輸入標題" />
+            <input v-model="tempProduct.title" type="text" placeholder="請輸入標題" required />
           </label>
 
           <label>
             分類
-            <input type="text" placeholder="請輸入分類" />
+            <input v-model="tempProduct.category" type="text" placeholder="請輸入分類" required />
           </label>
           <label>
             單位
-            <input type="text" placeholder="請輸入單位" />
+            <input v-model="tempProduct.unit" type="text" placeholder="請輸入單位" required />
           </label>
 
           <div>
             <label>
               原價
-              <input type="number" placeholder="請輸入原價" />
+              <input v-model.number="tempProduct.origin_price" type="number" placeholder="請輸入原價" required />
             </label>
             <label>
               售價
-              <input type="number" placeholder="請輸入售價" />
+              <input v-model.number="tempProduct.price" type="number" placeholder="請輸入售價" required />
             </label>
           </div>
 
@@ -69,18 +68,37 @@
       </form>
     </div>
     <div class="modal__action">
-      <button @click="$emit('confirm', close)">確認</button>
-      <button @click="$emit('cancel', close)">取消</button>
+      <button form="productForm" type="submit">confirm</button>
+      <button type="button" @click="$emit('cancel', close)">cancel</button>
     </div>
     <button class="modal__close" @click="close">X</button>
   </vue-final-modal>
 </template>
 
+<script setup>
+import { ref, unref, toRefs, watch } from 'vue';
+
+const emit = defineEmits(['confirm', 'cancel']);
+const props = defineProps({
+  product: {
+    type: Object,
+    default() {
+      return {};
+    },
+  },
+});
+const tempProduct = ref({});
+const { product } = toRefs(props);
+watch(product, () => {
+  console.log('彈跳視窗偵測外部資料傳入：', unref(product));
+  tempProduct.value = unref(product); // 資料不合規格，無法呈現
+});
+</script>
+
 <script>
 export default {
-  name: 'CustomModal',
+  name: 'ProductModal',
   inheritAttrs: false,
-  emits: ['confirm', 'cancel'],
 };
 </script>
 
