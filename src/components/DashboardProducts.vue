@@ -49,6 +49,55 @@ const tempProduct = ref({});
 const modalState = ref(false);
 const products = ref([]);
 const pagination = ref({});
+let productModalIsNew = false;
+
+async function getProducts(authToken) {
+  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
+    method: 'GET',
+    headers: { 'content-type': 'application/json', Authorization: authToken },
+  });
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
+}
+
+async function createProduct(authToken, newProduct) {
+  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: authToken,
+    },
+    body: JSON.stringify(newProduct),
+  });
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
+}
+
+async function editProduct(authToken, targetProduct) {
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.data.id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: authToken,
+      },
+      body: JSON.stringify(targetProduct),
+    },
+  );
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
+}
+
+function closeModal() {
+  modalState.value = false;
+}
 
 function openModal(isNewProductModal, targetProduct) {
   if (isNewProductModal) {
@@ -56,6 +105,7 @@ function openModal(isNewProductModal, targetProduct) {
   } else {
     tempProduct.value = { ...targetProduct };
   }
+  productModalIsNew = isNewProductModal;
   modalState.value = true;
 }
 
@@ -76,51 +126,40 @@ async function updateProduct(userInput) {
       ...userInput,
     },
   };
-  const result = await createProduct(getAuthToken, JSON.stringify(newProduct))
-    .then((responseJSON) => {
-      Toastify({
-        text: `${responseJSON.message}`,
-        duration: 2000,
-      }).showToast();
-    })
-    .catch((err) => {
-      Toastify({
-        text: `${err.message}`,
-        duration: 2000,
-      }).showToast();
-    });
+
+  if (productModalIsNew) {
+    await createProduct(getAuthToken, newProduct)
+      .then((responseJSON) => {
+        Toastify({
+          text: `${responseJSON.message}`,
+          duration: 2000,
+        }).showToast();
+      })
+      .catch((err) => {
+        Toastify({
+          text: `${err.message}`,
+          duration: 2000,
+        }).showToast();
+      });
+  } else {
+    console.log(newProduct.data.id);
+    await editProduct(getAuthToken, newProduct)
+      .then((responseJSON) => {
+        Toastify({
+          text: `${responseJSON.message}`,
+          duration: 2000,
+        }).showToast();
+      })
+      .catch((err) => {
+        Toastify({
+          text: `${err.message}`,
+          duration: 2000,
+        }).showToast();
+      });
+  }
+
   closeModal();
   renderProducts();
-}
-
-function closeModal() {
-  modalState.value = false;
-}
-
-async function getProducts(authToken) {
-  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
-    method: 'GET',
-    headers: { 'content-type': 'application/json', Authorization: authToken },
-  });
-  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
-  const responseJSON = await response.json();
-  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
-  return responseJSON;
-}
-
-async function createProduct(authToken, newProduct) {
-  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: authToken,
-    },
-    body: newProduct,
-  });
-  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
-  const responseJSON = await response.json();
-  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
-  return responseJSON;
 }
 renderProducts();
 </script>

@@ -14,9 +14,9 @@
           </label>
           <label>
             或 上傳圖片
-            <input type="file" />
+            <input ref="fileInput" type="file" @change="uploadFile" />
           </label>
-          <img alt="" />
+          <img :src="tempProduct.imageUrl" alt="" />
 
           <div>
             <input type="url" placeholder="請輸入連結" /> <button type="button">移除</button>
@@ -77,6 +77,9 @@
 
 <script setup>
 import { ref, unref, toRefs, watch } from 'vue';
+import getAuthToken from '@/helper/getAuthToken';
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
 
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -88,11 +91,52 @@ const props = defineProps({
   },
 });
 const tempProduct = ref({});
+const fileInput = ref(null);
 const { product } = toRefs(props);
+
 watch(product, () => {
-  console.log('彈跳視窗偵測外部資料傳入：', unref(product));
-  tempProduct.value = unref(product); // 資料不合規格，無法呈現
+  tempProduct.value = unref(product);
 });
+
+async function uploadImage(authToken, formData) {
+  const options = {
+    method: 'POST',
+    headers: {
+      Authorization: authToken,
+    },
+    body: formData,
+  };
+  delete options.headers['Content-Type'];
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/upload`,
+    options,
+  );
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
+}
+
+async function uploadFile() {
+  const formData = new FormData();
+  const file = fileInput.value.files[0];
+  formData.append('file-to-upload', file);
+  await uploadImage(getAuthToken, formData)
+    .then((responseJSON) => {
+      tempProduct.value.imageUrl = responseJSON.imageUrl;
+      console.log(tempProduct.value);
+      Toastify({
+        text: `圖片新增成功${responseJSON.imageUrl}`,
+        duration: 2000,
+      }).showToast();
+    })
+    .catch((err) => {
+      Toastify({
+        text: `${err.message}`,
+        duration: 2000,
+      }).showToast();
+    });
+}
 </script>
 
 <script>
