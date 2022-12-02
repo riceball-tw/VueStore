@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import checkAuth from '@/helper/checkAuth';
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
+import authToken from '@/helper/getAuthToken';
 
 const routes = [
   { path: '', name: 'home', component: () => import('@/views/Home.vue') },
@@ -28,6 +28,20 @@ const router = createRouter({
   routes,
   history: createWebHashHistory(),
 });
+
+async function checkAuth() {
+  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/user/check`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      Authorization: authToken,
+    },
+  });
+  if (!response.ok) throw new Error(`發生錯誤：${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤：${responseJSON.message}`);
+  return responseJSON;
+}
 
 router.beforeEach(async (to) => {
   // No need auth just pass
