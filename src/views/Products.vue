@@ -12,8 +12,9 @@
 <script setup>
 import { onErrorCaptured } from 'vue';
 import DashboardProducts from '@/components/DashboardProducts.vue';
+import { useToast } from 'vue-toastification';
 
 onErrorCaptured((err) => {
-  console.error('錯誤：', err);
+  useToast().error(`${err}`);
 });
 </script>

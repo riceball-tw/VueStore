@@ -10,8 +10,7 @@
 
 <script setup>
 import getAuthToken from '@/helper/getAuthToken';
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
+import { useToast } from 'vue-toastification';
 
 async function logout(authToken) {
   const response = await fetch(`${import.meta.env.VITE_APP_API}/logout`, {
@@ -27,16 +26,10 @@ async function logout(authToken) {
 function logoutClicked() {
   logout(getAuthToken)
     .then((responseJSON) => {
-      Toastify({
-        text: `${responseJSON.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().success(`${responseJSON.message}`);
     })
     .catch((err) => {
-      Toastify({
-        text: `${err.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().error(`${err.message}`);
     });
 }
 </script>

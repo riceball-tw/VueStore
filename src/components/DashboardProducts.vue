@@ -42,8 +42,7 @@
 import { ref } from 'vue';
 import productModal from '@/components/productModal.vue';
 import getAuthToken from '@/helper/getAuthToken';
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
+import { useToast } from 'vue-toastification';
 
 const tempProduct = ref({});
 const modalState = ref(false);
@@ -111,10 +110,7 @@ function openModal(isNewProductModal, targetProduct) {
 
 async function renderProducts() {
   const remoteProducts = await getProducts(getAuthToken).catch((err) => {
-    Toastify({
-      text: `${err.message}`,
-      duration: 2000,
-    }).showToast();
+    useToast().error(`${err.message}`);
   });
 
   products.value = remoteProducts.products;
@@ -130,31 +126,19 @@ async function updateProduct(userInput) {
   if (productModalIsNew) {
     await createProduct(getAuthToken, newProduct)
       .then((responseJSON) => {
-        Toastify({
-          text: `${responseJSON.message}`,
-          duration: 2000,
-        }).showToast();
+        useToast().success(`${responseJSON.message}`);
       })
       .catch((err) => {
-        Toastify({
-          text: `${err.message}`,
-          duration: 2000,
-        }).showToast();
+        useToast().error(`${err.message}`);
       });
   } else {
     console.log(newProduct.data.id);
     await editProduct(getAuthToken, newProduct)
       .then((responseJSON) => {
-        Toastify({
-          text: `${responseJSON.message}`,
-          duration: 2000,
-        }).showToast();
+        useToast().success(`${responseJSON.message}`);
       })
       .catch((err) => {
-        Toastify({
-          text: `${err.message}`,
-          duration: 2000,
-        }).showToast();
+        useToast().error(`${err.message}`);
       });
   }
 

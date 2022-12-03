@@ -78,8 +78,7 @@
 <script setup>
 import { ref, unref, toRefs, watch } from 'vue';
 import getAuthToken from '@/helper/getAuthToken';
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
+import { useToast } from 'vue-toastification';
 
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -124,17 +123,10 @@ async function uploadFile() {
   await uploadImage(getAuthToken, formData)
     .then((responseJSON) => {
       tempProduct.value.imageUrl = responseJSON.imageUrl;
-      console.log(tempProduct.value);
-      Toastify({
-        text: `圖片新增成功${responseJSON.imageUrl}`,
-        duration: 2000,
-      }).showToast();
+      useToast().success(`圖片新增成功${responseJSON.imageUrl}`);
     })
     .catch((err) => {
-      Toastify({
-        text: `${err.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().error(`${err.message}`);
     });
 }
 </script>

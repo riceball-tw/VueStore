@@ -1,6 +1,5 @@
 <script setup>
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
+import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -22,17 +21,11 @@ function loginSubmit(form) {
     .then((responseJSON) => {
       const { token, expired } = responseJSON;
       document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
-      Toastify({
-        text: `${responseJSON.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().success(`${responseJSON.message}`);
       router.push({ name: 'products' });
     })
     .catch((err) => {
-      Toastify({
-        text: `${err.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().error(`${err.message}`);
     });
 }
 </script>

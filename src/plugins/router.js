@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Toastify from 'toastify-js';
-import 'toastify-js/src/toastify.css';
+import { useToast } from 'vue-toastification';
 import authToken from '@/helper/getAuthToken';
 
 const routes = [
@@ -51,17 +50,11 @@ router.beforeEach(async (to) => {
   // Check auth
   const authResult = await checkAuth()
     .then((responseJSON) => {
-      Toastify({
-        text: `歡迎登入 ${to.name}`,
-        duration: 2000,
-      }).showToast();
+      useToast().success(`歡迎登入 ${to.name}`);
       return true;
     })
     .catch((err) => {
-      Toastify({
-        text: `${err.message}`,
-        duration: 2000,
-      }).showToast();
+      useToast().error(`${err.message}`);
       router.push({ name: 'login' });
     });
 
