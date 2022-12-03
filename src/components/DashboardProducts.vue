@@ -52,7 +52,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import Pagination from '@/components/Pagination.vue';
 import productModal from '@/components/ProductModal.vue';
 import productDeleteModal from '@/components/ProductDeleteModal.vue';
 import getAuthToken from '@/helper/getAuthToken';
@@ -65,14 +64,11 @@ const products = ref([]);
 // const pagination = ref({});
 let productModalIsNew = false;
 
-async function getProducts(authToken, page = 1) {
-  const response = await fetch(
-    `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
-    {
-      method: 'GET',
-      headers: { 'content-type': 'application/json', Authorization: authToken },
-    },
-  );
+async function getProducts(authToken) {
+  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
+    method: 'GET',
+    headers: { 'content-type': 'application/json', Authorization: authToken },
+  });
   if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
   const responseJSON = await response.json();
   if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
