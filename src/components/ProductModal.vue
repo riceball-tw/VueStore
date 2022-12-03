@@ -80,7 +80,7 @@ import { ref, unref, toRefs, watch } from 'vue';
 import getAuthToken from '@/helper/getAuthToken';
 import { useToast } from 'vue-toastification';
 
-const emit = defineEmits(['confirm', 'cancel']);
+defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   product: {
     type: Object,

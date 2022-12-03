@@ -6,6 +6,15 @@
       <template #title>產品</template>
     </productModal>
 
+    <productDeleteModal
+      v-model="deleteModalState"
+      :product="tempProduct"
+      @confirm="updateDeleteProduct"
+      @cancel="closeDeleteModal"
+    >
+      <template #title>刪除產品</template>
+    </productDeleteModal>
+
     <button @click="openModal(true)">新增產品</button>
   </div>
 
@@ -28,10 +37,13 @@
         <td>{{ product.price }}</td>
         <td>
           <span v-if="product.is_enabled">啟用</span>
-          <span v-else="product.is_enabled">未啟用</span>
+          <span v-else>未啟用</span>
         </td>
         <td>
-          <div><button @click="openModal(false, product)">編輯</button> <button>刪除</button></div>
+          <div>
+            <button @click="openModal(false, product)">編輯</button>
+            <button @click="openDeleteProductModal(product)">刪除</button>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -40,14 +52,16 @@
 
 <script setup>
 import { ref } from 'vue';
-import productModal from '@/components/productModal.vue';
+import productModal from '@/components/ProductModal.vue';
+import productDeleteModal from '@/components/ProductDeleteModal.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import { useToast } from 'vue-toastification';
 
 const tempProduct = ref({});
 const modalState = ref(false);
+const deleteModalState = ref(false);
 const products = ref([]);
-const pagination = ref({});
+// const pagination = ref({});
 let productModalIsNew = false;
 
 async function getProducts(authToken) {
@@ -94,8 +108,29 @@ async function editProduct(authToken, targetProduct) {
   return responseJSON;
 }
 
+async function deleteProduct(authToken, targetProductID) {
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProductID}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: authToken,
+      },
+    },
+  );
+  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
+  const responseJSON = await response.json();
+  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
+  return responseJSON;
+}
+
 function closeModal() {
   modalState.value = false;
+}
+
+function closeDeleteModal() {
+  deleteModalState.value = false;
 }
 
 function openModal(isNewProductModal, targetProduct) {
@@ -108,12 +143,30 @@ function openModal(isNewProductModal, targetProduct) {
   modalState.value = true;
 }
 
+function openDeleteProductModal(targetProduct) {
+  tempProduct.value = { ...targetProduct };
+  deleteModalState.value = true;
+}
+
 async function renderProducts() {
   const remoteProducts = await getProducts(getAuthToken).catch((err) => {
     useToast().error(`${err.message}`);
   });
 
   products.value = remoteProducts.products;
+}
+
+async function updateDeleteProduct(targetProduct) {
+  await deleteProduct(getAuthToken, targetProduct.id)
+    .then((responseJSON) => {
+      useToast().success(`${responseJSON.message}`);
+    })
+    .catch((err) => {
+      useToast().error(`${err.message}`);
+    });
+
+  closeDeleteModal();
+  renderProducts();
 }
 
 async function updateProduct(userInput) {
@@ -132,7 +185,6 @@ async function updateProduct(userInput) {
         useToast().error(`${err.message}`);
       });
   } else {
-    console.log(newProduct.data.id);
     await editProduct(getAuthToken, newProduct)
       .then((responseJSON) => {
         useToast().success(`${responseJSON.message}`);
@@ -145,5 +197,6 @@ async function updateProduct(userInput) {
   closeModal();
   renderProducts();
 }
+
 renderProducts();
 </script>
