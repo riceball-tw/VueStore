@@ -33,8 +33,8 @@
       <tr v-for="product in products" :key="product.key">
         <td>{{ product.category }}</td>
         <td>{{ product.title }}</td>
-        <td>{{ product.origin_price }}</td>
-        <td>{{ product.price }}</td>
+        <td>{{ $unitFilters.currency(product.origin_price) }}</td>
+        <td>{{ $unitFilters.currency(product.price) }}</td>
         <td>
           <span v-if="product.is_enabled">啟用</span>
           <span v-else>未啟用</span>
@@ -48,12 +48,14 @@
       </tr>
     </tbody>
   </table>
+  <Pagination :pages="pagination" @page-change="pageChange" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import productModal from '@/components/ProductModal.vue';
 import productDeleteModal from '@/components/ProductDeleteModal.vue';
+import Pagination from '@/components/Pagination.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import { useToast } from 'vue-toastification';
 
@@ -61,14 +63,17 @@ const tempProduct = ref({});
 const modalState = ref(false);
 const deleteModalState = ref(false);
 const products = ref([]);
-// const pagination = ref({});
+const pagination = ref({});
 let productModalIsNew = false;
 
-async function getProducts(authToken) {
-  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products`, {
-    method: 'GET',
-    headers: { 'content-type': 'application/json', Authorization: authToken },
-  });
+async function getProducts(authToken = getAuthToken, page = 1) {
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
+    {
+      method: 'GET',
+      headers: { 'content-type': 'application/json', Authorization: authToken },
+    },
+  );
   if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
   const responseJSON = await response.json();
   if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
@@ -125,6 +130,10 @@ async function deleteProduct(authToken, targetProductID) {
   return responseJSON;
 }
 
+function pageChange(page) {
+  renderProducts(page);
+}
+
 function closeModal() {
   modalState.value = false;
 }
@@ -148,12 +157,13 @@ function openDeleteProductModal(targetProduct) {
   deleteModalState.value = true;
 }
 
-async function renderProducts() {
-  const remoteProducts = await getProducts(getAuthToken).catch((err) => {
+async function renderProducts(page) {
+  const remoteProducts = await getProducts(getAuthToken, page).catch((err) => {
     useToast().error(`${err.message}`);
   });
 
   products.value = remoteProducts.products;
+  pagination.value = remoteProducts.pagination;
 }
 
 async function updateDeleteProduct(targetProduct) {
