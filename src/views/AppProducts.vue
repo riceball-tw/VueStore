@@ -11,8 +11,8 @@
 
 <script setup>
 import { onErrorCaptured } from 'vue';
-import DashboardProducts from '@/components/DashboardProducts.vue';
 import { useToast } from 'vue-toastification';
+import DashboardProducts from '@/components/dashboard/AppProducts.vue';
 
 onErrorCaptured((err) => {
   useToast().error(`${err}`);

@@ -1,64 +1,53 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import authToken from '@/helper/getAuthToken';
-
-const routes = [
-  { path: '', name: 'home', component: () => import('@/views/AppHome.vue') },
-  { path: '/about', name: 'about', component: () => import('@/views/AppAbout.vue') },
-  {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: () => import('@/views/AppDashboard.vue'),
-    meta: {
-      needsAuth: true,
-    },
-    children: [
-      {
-        path: 'products',
-        name: 'products',
-        component: () => import('@/views/AppProducts.vue'),
-      },
-    ],
-  },
-  { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
-];
+import axios from 'axios';
 
 const router = createRouter({
-  routes,
+  routes: [
+    { path: '', name: 'home', component: () => import('@/views/AppHome.vue') },
+    { path: '/about', name: 'about', component: () => import('@/views/AppAbout.vue') },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/AppDashboard.vue'),
+      meta: {
+        needsAuth: true,
+      },
+      children: [
+        {
+          path: 'products',
+          name: 'products',
+          component: () => import('@/views/AppProducts.vue'),
+        },
+      ],
+    },
+    { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
+  ],
   history: createWebHashHistory(),
 });
 
-async function checkAuth() {
-  const response = await fetch(`${import.meta.env.VITE_APP_API}/api/user/check`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: authToken,
-    },
-  });
-  if (!response.ok) throw new Error(`發生錯誤：${response.status}`);
-  const responseJSON = await response.json();
-  if (!responseJSON.success) throw new Error(`發生錯誤：${responseJSON.message}`);
-  return responseJSON;
-}
-
 router.beforeEach(async (to) => {
-  // No need auth just pass
   if (!to.meta.needsAuth) {
     return true;
   }
-  // Check auth
-  const authResult = await checkAuth()
-    .then((responseJSON) => {
-      useToast().success(`歡迎登入 ${to.name}`);
+  return axios({
+    method: 'post',
+    url: `${import.meta.env.VITE_APP_API}/api/user/check`,
+    headers: {
+      Authorization: authToken,
+    },
+  })
+    .then((res) => {
+      if (!res.data.success) throw new Error(`${res.data.message}`);
+      useToast().success(`通過登入驗證，為您跳轉至 ${to.name} 頁面`);
       return true;
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
       router.push({ name: 'login' });
+      return false;
     });
-
-  return authResult;
 });
 
 export default router;

@@ -23,7 +23,7 @@
 <script setup>
 import { useToast } from 'vue-toastification';
 
-const emit = defineEmits(['page-change']);
+const emit = defineEmits(['pagination-change']);
 
 defineProps({
   pages: {
@@ -36,7 +36,7 @@ defineProps({
 
 function pagePrev(pagesData) {
   if (pagesData.has_pre) {
-    emit('page-change', pagesData.current_page - 1);
+    emit('pagination-change', pagesData.current_page - 1);
   } else {
     useToast().warning('已經沒有上一頁了');
   }
@@ -44,13 +44,13 @@ function pagePrev(pagesData) {
 
 function pageNext(pagesData) {
   if (pagesData.has_next) {
-    emit('page-change', pagesData.current_page + 1);
+    emit('pagination-change', pagesData.current_page + 1);
   } else {
     useToast().warning('已經沒有下一頁了');
   }
 }
 
 function pageChange(targetPage) {
-  emit('page-change', targetPage);
+  emit('pagination-change', targetPage);
 }
 </script>
