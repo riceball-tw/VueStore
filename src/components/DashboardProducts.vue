@@ -55,7 +55,7 @@
 import { ref } from 'vue';
 import productModal from '@/components/ProductModal.vue';
 import productDeleteModal from '@/components/ProductDeleteModal.vue';
-import Pagination from '@/components/Pagination.vue';
+import Pagination from '@/components/AppPagination.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import { useToast } from 'vue-toastification';
 

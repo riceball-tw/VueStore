@@ -3,12 +3,12 @@ import { useToast } from 'vue-toastification';
 import authToken from '@/helper/getAuthToken';
 
 const routes = [
-  { path: '', name: 'home', component: () => import('@/views/Home.vue') },
-  { path: '/about', name: 'about', component: () => import('@/views/About.vue') },
+  { path: '', name: 'home', component: () => import('@/views/AppHome.vue') },
+  { path: '/about', name: 'about', component: () => import('@/views/AppAbout.vue') },
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('@/views/Dashboard.vue'),
+    component: () => import('@/views/AppDashboard.vue'),
     meta: {
       needsAuth: true,
     },
@@ -16,11 +16,11 @@ const routes = [
       {
         path: 'products',
         name: 'products',
-        component: () => import('@/views/Products.vue'),
+        component: () => import('@/views/AppProducts.vue'),
       },
     ],
   },
-  { path: '/login', name: 'login', component: () => import('@/views/Login.vue') },
+  { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
 ];
 
 const router = createRouter({
