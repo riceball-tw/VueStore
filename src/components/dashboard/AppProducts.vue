@@ -2,25 +2,7 @@
   <h1>產品列表</h1>
 
   <div>
-    <productModal
-      v-model="productModalState"
-      :product="tempProduct"
-      @confirm="updateProduct"
-      @cancel="closeProductModal"
-    >
-      <template #title>產品</template>
-    </productModal>
-
-    <productDeleteModal
-      v-model="deleteProductModalState"
-      :product="tempProduct"
-      @confirm="updateDeleteProduct"
-      @cancel="closeDeleteModal"
-    >
-      <template #title>刪除產品</template>
-    </productDeleteModal>
-
-    <button @click="openModal(true)">新增產品</button>
+    <button @click="openAddProductModal()">新增產品</button>
   </div>
 
   <table>
@@ -46,7 +28,7 @@
         </td>
         <td>
           <div>
-            <button @click="openModal(false, product)">編輯</button>
+            <button @click="openEditProductModal(product)">編輯</button>
             <button @click="openDeleteProductModal(product)">刪除</button>
           </div>
         </td>
@@ -59,25 +41,18 @@
 <script setup>
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
-import productDeleteModal from '@/components/modal/ProductDeleteModal.vue';
+import { $vfm } from 'vue-final-modal';
 import productModal from '@/components/modal/ProductModal.vue';
+import productDeleteModal from '@/components/modal/ProductDeleteModal.vue';
 import Pagination from '@/components/AppPagination.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import axios from 'axios';
-
-// Modal state
-const productModalState = ref(false);
-const deleteProductModalState = ref(false);
-let productModalIsNew = false;
 
 // UI Data
 const products = ref([]);
 const pagination = ref({});
 
-// Data waiting to pass to modal
-const tempProduct = ref({});
-
-// Render products by given page number
+// Remotely get products by given page number, then render them
 async function renderProducts(page = 1) {
   const remoteProducts = await axios({
     method: 'get',
@@ -94,7 +69,6 @@ async function renderProducts(page = 1) {
       useToast().error(`${err.message}`);
     });
 
-  // Update current data
   products.value = remoteProducts.products;
   pagination.value = remoteProducts.pagination;
 }
@@ -103,82 +77,56 @@ function paginationChange(page) {
   renderProducts(page);
 }
 
-function closeProductModal() {
-  productModalState.value = false;
-}
-
-function closeDeleteModal() {
-  deleteProductModalState.value = false;
-}
-
-function openModal(isNewProductModal, targetProduct) {
-  if (isNewProductModal) {
-    tempProduct.value = {};
-  } else {
-    tempProduct.value = { ...targetProduct };
-  }
-  productModalIsNew = isNewProductModal;
-  productModalState.value = true;
-}
-
-function openDeleteProductModal(targetProduct) {
-  tempProduct.value = { ...targetProduct };
-  deleteProductModalState.value = true;
-}
-
-async function updateDeleteProduct(targetProduct) {
+// Remotely create product from input data
+async function addProduct(targetProduct) {
   axios({
-    method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.id}`,
+    method: 'post',
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
     headers: {
       Authorization: getAuthToken,
+    },
+    data: {
+      ...targetProduct,
     },
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
       useToast().success(`${res.data.message}`);
       renderProducts();
-      closeDeleteModal();
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
+      return err;
     });
 }
 
-async function updateProduct(userInput) {
-  // Product info from modal input
-  const targetProduct = {
-    data: {
-      ...userInput,
+function openAddProductModal(targetProduct) {
+  $vfm.show({
+    component: productModal,
+    bind: {
+      product: { ...targetProduct },
     },
-  };
+    on: {
+      confirm(data) {
+        data.close();
 
-  if (productModalIsNew) {
-    // Remotely create product from input data
-    axios({
-      method: 'post',
-      url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
-      headers: {
-        Authorization: getAuthToken,
+        // Turn modal input to usable format for addProduct
+        const newProduct = {
+          data: {
+            ...data.product,
+          },
+        };
+        addProduct(newProduct);
       },
-      data: {
-        ...targetProduct,
+      cancel(close) {
+        close();
       },
-    })
-      .then((res) => {
-        if (!res.data.success) throw new Error(`${res.data.message}`);
-        useToast().success(`${res.data.message}`);
-        renderProducts();
-        closeProductModal();
-      })
-      .catch((err) => {
-        useToast().error(`${err.message}`);
-        return err;
-      });
-    return;
-  }
+    },
+  });
+}
 
-  // Remotely edit product from input data
+// Remotely edit product from input data
+async function editProduct(targetProduct) {
   axios({
     method: 'put',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.data.id}`,
@@ -191,11 +139,72 @@ async function updateProduct(userInput) {
       if (!res.data.success) throw new Error(`${res.data.message}`);
       useToast().success(`${res.data.message}`);
       renderProducts();
-      closeProductModal();
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
     });
+}
+
+function openEditProductModal(targetProduct) {
+  $vfm.show({
+    component: productModal,
+    bind: {
+      product: { ...targetProduct },
+    },
+    on: {
+      confirm(data) {
+        data.close();
+
+        // Turn modal input to usable format for editProduct
+        const newProduct = {
+          data: {
+            ...data.product,
+          },
+        };
+        editProduct(newProduct);
+      },
+      cancel(close) {
+        close();
+      },
+    },
+  });
+}
+
+// Remotely delete poduct by given id
+async function deleteProduct(productId) {
+  axios({
+    method: 'delete',
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${productId}`,
+    headers: {
+      Authorization: getAuthToken,
+    },
+  })
+    .then((res) => {
+      if (!res.data.success) throw new Error(`${res.data.message}`);
+      useToast().success(`${res.data.message}`);
+      renderProducts();
+    })
+    .catch((err) => {
+      useToast().error(`${err.message}`);
+    });
+}
+
+function openDeleteProductModal(targetProduct) {
+  $vfm.show({
+    component: productDeleteModal,
+    bind: {
+      product: { ...targetProduct },
+    },
+    on: {
+      confirm(data) {
+        data.close();
+        deleteProduct(data.product.id);
+      },
+      cancel(close) {
+        close();
+      },
+    },
+  });
 }
 
 renderProducts();

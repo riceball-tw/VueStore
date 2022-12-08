@@ -8,7 +8,7 @@
       <p>確認是否刪除 {{ product.title }} 產品</p>
     </div>
     <div class="modal__action">
-      <button @click="$emit('confirm', product)">confirm</button>
+      <button @click="$emit('confirm', { product, close: close })">confirm</button>
       <button type="button" @click="$emit('cancel', close)">cancel</button>
     </div>
     <button class="modal__close" @click="close">X</button>
