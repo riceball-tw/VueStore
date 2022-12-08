@@ -42,8 +42,8 @@
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { $vfm } from 'vue-final-modal';
-import productModal from '@/components/modal/ProductModal.vue';
-import productDeleteModal from '@/components/modal/ProductDeleteModal.vue';
+import ProductModal from '@/components/modal/ProductModal.vue';
+import ProductDeleteModal from '@/components/modal/ProductDeleteModal.vue';
 import Pagination from '@/components/AppPagination.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import axios from 'axios';
@@ -102,7 +102,7 @@ async function addProduct(targetProduct) {
 
 function openAddProductModal(targetProduct) {
   $vfm.show({
-    component: productModal,
+    component: ProductModal,
     bind: {
       product: { ...targetProduct },
     },
@@ -147,7 +147,7 @@ async function editProduct(targetProduct) {
 
 function openEditProductModal(targetProduct) {
   $vfm.show({
-    component: productModal,
+    component: ProductModal,
     bind: {
       product: { ...targetProduct },
     },
@@ -191,7 +191,7 @@ async function deleteProduct(productId) {
 
 function openDeleteProductModal(targetProduct) {
   $vfm.show({
-    component: productDeleteModal,
+    component: ProductDeleteModal,
     bind: {
       product: { ...targetProduct },
     },
