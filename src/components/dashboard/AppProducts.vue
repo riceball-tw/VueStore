@@ -207,5 +207,5 @@ function openDeleteProductModal(targetProduct) {
   });
 }
 
-renderProducts();
+await renderProducts();
 </script>
