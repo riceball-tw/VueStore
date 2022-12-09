@@ -1,8 +1,17 @@
 <template>
-  <vue-final-modal v-slot="{ params, close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
-    <h1>Title</h1>
-
-    <form id="productForm" @submit.prevent="$emit('confirm', { product: tempProduct, close: close })">
+  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
+    <span class="modal__title">
+      <slot name="title"></slot>
+    </span>
+    <form
+      id="productForm"
+      @submit.prevent="
+        () => {
+          close();
+          modalSubmit();
+        }
+      "
+    >
       <!-- Image -->
       <div>
         <label>
@@ -65,17 +74,16 @@
     </form>
 
     <div class="modal__action">
-      <button type="submit" form="productForm">confirm</button>
-      <button @click="$emit('cancel', close)">cancel</button>
+      <button type="submit" form="productForm">確認</button>
+      <button @click="close()">取消</button>
     </div>
-    <button class="modal__close" @click="close">X</button>
   </vue-final-modal>
 </template>
 
 <script setup>
-import { ref, toRefs, unref, watch } from 'vue';
+import { ref, toRefs, unref } from 'vue';
 
-defineEmits(['confirm', 'cancel']);
+const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   product: {
     type: Object,
@@ -88,9 +96,10 @@ const props = defineProps({
 const tempProduct = ref({});
 const { product } = toRefs(props);
 tempProduct.value = product;
-// watch(product, () => {
-//   tempProduct.value = unref(product);
-// });
+
+function modalSubmit() {
+  emit('confirm', unref(tempProduct));
+}
 </script>
 
 <script>

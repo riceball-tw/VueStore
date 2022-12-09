@@ -102,20 +102,17 @@ function openAddProductModal() {
   $vfm.show({
     component: ProductModal,
     on: {
-      confirm(modal) {
-        modal.close();
-
-        // Turn modal input to usable format for addProduct
+      confirm(modalData) {
         const newProduct = {
           data: {
-            ...modal.product,
+            ...modalData,
           },
         };
         addProduct(newProduct);
       },
-      cancel(close) {
-        close();
-      },
+    },
+    slots: {
+      title: '新增產品',
     },
   });
 }
@@ -147,20 +144,17 @@ function openEditProductModal(targetProduct) {
       product: { ...targetProduct },
     },
     on: {
-      confirm(data) {
-        data.close();
-
-        // Turn modal input to usable format for editProduct
+      confirm(modalData) {
         const newProduct = {
           data: {
-            ...data.product,
+            ...modalData,
           },
         };
         editProduct(newProduct);
       },
-      cancel(close) {
-        close();
-      },
+    },
+    slots: {
+      title: '編輯產品',
     },
   });
 }
