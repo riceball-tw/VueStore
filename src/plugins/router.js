@@ -20,6 +20,11 @@ const router = createRouter({
           name: 'products',
           component: () => import('@/views/AppProducts.vue'),
         },
+        {
+          path: 'coupons',
+          name: 'coupons',
+          component: () => import('@/views/AppCoupons.vue'),
+        },
       ],
     },
     { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
