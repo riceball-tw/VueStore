@@ -1,35 +1,46 @@
 <template>
-  <vue-final-modal v-slot="{ params, close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
+  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
     <span class="modal__title">
       <slot name="title"></slot>
     </span>
     <div class="modal__content">
-      <slot :params="params"></slot>
-      <p>確認是否刪除 {{ product.title }} 產品</p>
+      <p>您確定想要刪除「{{ dashboardItem.title }}」項目？<br />這項舉動將無法挽回。</p>
     </div>
     <div class="modal__action">
-      <button @click="$emit('confirm', { product, close: close })">confirm</button>
-      <button type="button" @click="$emit('cancel', close)">cancel</button>
+      <button type="button" @click="close()">取消</button>
+      <button
+        @click="
+          () => {
+            close();
+            confirmDelete();
+          }
+        "
+      >
+        我確定
+      </button>
     </div>
-    <button class="modal__close" @click="close">X</button>
   </vue-final-modal>
 </template>
 
 <script setup>
-defineEmits(['confirm', 'cancel']);
+const emit = defineEmits(['confirm']);
 defineProps({
-  product: {
+  dashboardItem: {
     type: Object,
     default() {
       return {};
     },
   },
 });
+
+function confirmDelete() {
+  emit('confirm');
+}
 </script>
 
 <script>
 export default {
-  name: 'ProductModal',
+  name: 'DashboardDeleteModal',
   inheritAttrs: false,
 };
 </script>

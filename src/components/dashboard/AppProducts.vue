@@ -43,7 +43,7 @@ import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { $vfm } from 'vue-final-modal';
 import ProductModal from '@/components/modal/ProductModal.vue';
-import ProductDeleteModal from '@/components/modal/ProductDeleteModal.vue';
+import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
 import Pagination from '@/components/AppPagination.vue';
 import getAuthToken from '@/helper/getAuthToken';
 import axios from 'axios';
@@ -53,8 +53,8 @@ const products = ref([]);
 const pagination = ref({});
 
 // Remotely get products by given page number, then render them
-async function renderProducts(page = 1) {
-  const remoteProducts = await axios({
+function renderProducts(page = 1) {
+  axios({
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
     headers: {
@@ -63,14 +63,12 @@ async function renderProducts(page = 1) {
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
-      return res.data;
+      products.value = res.data.products;
+      pagination.value = res.data.pagination;
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
     });
-
-  products.value = remoteProducts.products;
-  pagination.value = remoteProducts.pagination;
 }
 
 function paginationChange(page) {
@@ -78,7 +76,7 @@ function paginationChange(page) {
 }
 
 // Remotely create product from input data
-async function addProduct(targetProduct) {
+function addProduct(targetProduct) {
   axios({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
@@ -100,20 +98,17 @@ async function addProduct(targetProduct) {
     });
 }
 
-function openAddProductModal(targetProduct) {
+function openAddProductModal() {
   $vfm.show({
     component: ProductModal,
-    bind: {
-      product: { ...targetProduct },
-    },
     on: {
-      confirm(data) {
-        data.close();
+      confirm(modal) {
+        modal.close();
 
         // Turn modal input to usable format for addProduct
         const newProduct = {
           data: {
-            ...data.product,
+            ...modal.product,
           },
         };
         addProduct(newProduct);
@@ -126,7 +121,7 @@ function openAddProductModal(targetProduct) {
 }
 
 // Remotely edit product from input data
-async function editProduct(targetProduct) {
+function editProduct(targetProduct) {
   axios({
     method: 'put',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.data.id}`,
@@ -171,7 +166,7 @@ function openEditProductModal(targetProduct) {
 }
 
 // Remotely delete poduct by given id
-async function deleteProduct(productId) {
+function deleteProduct(productId) {
   axios({
     method: 'delete',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${productId}`,
@@ -191,18 +186,17 @@ async function deleteProduct(productId) {
 
 function openDeleteProductModal(targetProduct) {
   $vfm.show({
-    component: ProductDeleteModal,
+    component: DashboardDeleteModal,
     bind: {
-      product: { ...targetProduct },
+      dashboardItem: { ...targetProduct },
     },
     on: {
-      confirm(data) {
-        data.close();
-        deleteProduct(data.product.id);
+      confirm() {
+        deleteProduct(targetProduct.id);
       },
-      cancel(close) {
-        close();
-      },
+    },
+    slots: {
+      title: '刪除產品',
     },
   });
 }
