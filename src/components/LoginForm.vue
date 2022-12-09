@@ -1,27 +1,28 @@
 <script setup>
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
+import getAuthToken from '@/helper/getAuthToken';
 
 const router = useRouter();
 
-async function login(form) {
-  const response = await fetch(`${import.meta.env.VITE_APP_API}/admin/signin`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: `{"username":"${form.loginEmail.value}","password":"${form.loginPassword.value}"}`,
-  });
-  if (!response.ok) throw new Error(`發生錯誤，${response.status}`);
-  const responseJSON = await response.json();
-  if (!responseJSON.success) throw new Error(`發生錯誤，${responseJSON.message}`);
-  return responseJSON;
-}
-
 function loginSubmit(form) {
-  login(form)
-    .then((responseJSON) => {
-      const { token, expired } = responseJSON;
+  const userInfo = {
+    username: form.loginEmail.value,
+    password: form.loginPassword.value,
+  };
+
+  axios({
+    method: 'post',
+    url: `${import.meta.env.VITE_APP_API}/admin/signin`,
+    headers: { Authorization: getAuthToken },
+    data: userInfo,
+  })
+    .then((res) => {
+      if (!res.data.success) throw new Error(`${res.data.message}`);
+      const { token, expired } = res.data;
       document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
-      useToast().success(`${responseJSON.message}`);
+      useToast().success(`${res.data.message}`);
       router.push({ name: 'products' });
     })
     .catch((err) => {
