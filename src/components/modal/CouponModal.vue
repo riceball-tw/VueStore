@@ -1,6 +1,8 @@
 <template>
   <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
-    <slot name="title"></slot>
+    <div class="modal__title">
+      <slot name="title"></slot>
+    </div>
     <form
       id="couponModal"
       @submit.prevent="
@@ -12,26 +14,40 @@
     >
       <!-- Title -->
       <label>
+        名稱
         <input v-model="tempCoupon.title" type="text" placeholder="請輸入優惠券名稱……" required />
       </label>
       <!-- is_enabled -->
-      <input v-model="tempCoupon.is_enabled" type="number" placeholder="請輸入優惠券名稱……" required />
+      <label>
+        已啟用
+        <input v-model="tempCoupon.is_enabled" type="number" placeholder="請輸入優惠券啟用狀態……" required />
+      </label>
       <!-- percent -->
-      <input v-model="tempCoupon.percent" type="number" placeholder="請輸入優惠券名稱……" required />
+      <label>
+        折扣數
+        <input v-model="tempCoupon.percent" type="number" placeholder="請輸入優惠券折扣數……" required />
+      </label>
       <!-- due_date -->
-      <input v-model="tempCoupon.due_date" type="date" placeholder="請輸入優惠券名稱……" required />
+      <label>
+        到期日
+        <input v-model="tempCoupon.due_date" type="date" placeholder="請輸入優惠券到期日……" required />
+      </label>
       <!-- code -->
-      <input v-model="tempCoupon.code" type="text" placeholder="請輸入優惠券名稱……" required />
+      <label>
+        折扣碼
+        <input v-model="tempCoupon.code" type="text" placeholder="請輸入優惠券折扣代碼……" required />
+      </label>
     </form>
     <div class="modal__action">
-      <button form="couponModal" type="submit">confirm</button>
-      <button @click="close()">cancel</button>
+      <button form="couponModal" type="submit">確認</button>
+      <button @click="close()">取消</button>
     </div>
   </vue-final-modal>
 </template>
 
 <script setup>
-import { ref, toRefs, unref } from 'vue';
+import { ref, toRefs, unref, onMounted } from 'vue';
+import { toUnixTimestamp } from '@/helper/unitFilter';
 
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -48,10 +64,23 @@ const tempCoupon = ref({});
 tempCoupon.value = coupon;
 
 function formSubmit() {
-  // Convert due_date to unix timestamp
-  tempCoupon.value.due_date = new Date(tempCoupon.value.due_date).getTime() / 1000;
+  tempCoupon.value.due_date = toUnixTimestamp(tempCoupon.value.due_date);
   emit('confirm', unref(tempCoupon));
 }
+
+onMounted(() => {
+  if (tempCoupon.value.due_date) {
+    const isoString = new Date(tempCoupon.value.due_date * 1000).toISOString();
+    const formattedDate = new Date(isoString)
+      .toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+      .replace(/\//g, '-');
+    tempCoupon.value.due_date = formattedDate;
+  }
+});
 </script>
 
 <style scoped>
