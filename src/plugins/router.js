@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import authToken from '@/helper/getAuthToken';
 import axios from 'axios';
+import authToken from '@/helper/getAuthToken';
 
 const router = createRouter({
   routes: [
@@ -49,9 +49,7 @@ router.beforeEach(async (to) => {
   return axios({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/user/check`,
-    headers: {
-      Authorization: authToken,
-    },
+    headers: { Authorization: authToken() },
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);

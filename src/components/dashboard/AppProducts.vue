@@ -53,13 +53,11 @@ const products = ref([]);
 const pagination = ref({});
 
 // Remotely get products by given page number, then render them
-function renderProducts(page = 1) {
+async function renderProducts(page = 1) {
   axios({
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
-    headers: {
-      Authorization: getAuthToken,
-    },
+    headers: { Authorization: getAuthToken() },
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
@@ -68,6 +66,7 @@ function renderProducts(page = 1) {
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
+      console.log('render err');
     });
 }
 
@@ -81,7 +80,7 @@ function addProduct(targetProduct) {
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: {
       ...targetProduct,
@@ -123,7 +122,7 @@ function editProduct(targetProduct) {
     method: 'put',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.data.id}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: { ...targetProduct },
   })
@@ -165,7 +164,7 @@ function deleteProduct(productId) {
     method: 'delete',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${productId}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {

@@ -2,11 +2,11 @@
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import getAuthToken from '@/helper/getAuthToken';
+import authToken from '@/helper/getAuthToken';
 
 const router = useRouter();
 
-function loginSubmit(form) {
+async function loginSubmit(form) {
   const userInfo = {
     username: form.loginEmail.value,
     password: form.loginPassword.value,
@@ -15,7 +15,6 @@ function loginSubmit(form) {
   axios({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/admin/signin`,
-    headers: { Authorization: getAuthToken },
     data: userInfo,
   })
     .then((res) => {

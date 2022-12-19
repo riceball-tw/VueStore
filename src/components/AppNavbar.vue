@@ -18,7 +18,7 @@ function logoutClicked() {
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/logout`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {

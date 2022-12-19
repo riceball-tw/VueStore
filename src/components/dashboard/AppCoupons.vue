@@ -50,7 +50,7 @@ function renderCoupons(page = 1) {
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupons/?page=${page}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {
@@ -72,7 +72,7 @@ function addCoupon(newCoupon) {
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: newCoupon,
   })
@@ -112,7 +112,7 @@ function editCoupon(targetCoupon) {
     method: 'put',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon/${targetCoupon.id}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: targetCoupon,
   })
@@ -155,7 +155,7 @@ function deleteCoupon(targetCouponId) {
     method: 'delete',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon/${targetCouponId}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {

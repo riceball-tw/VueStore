@@ -57,7 +57,7 @@ function renderArticles(page = 1) {
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/articles/?page=${page}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {
@@ -80,7 +80,7 @@ function addArticle(targetArticle) {
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: {
       ...targetArticle,
@@ -122,7 +122,7 @@ function editArticle(targetArticle) {
     method: 'put',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetArticle.data.id}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
     data: { ...targetArticle },
   })
@@ -164,7 +164,7 @@ function deleteArticle(articleId) {
     method: 'delete',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article/${articleId}`,
     headers: {
-      Authorization: getAuthToken,
+      Authorization: getAuthToken(),
     },
   })
     .then((res) => {
