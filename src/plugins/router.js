@@ -1,16 +1,37 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
-import authToken from '@/helper/getAuthToken';
+import getAuthToken from '@/helper/getAuthToken';
 
 const router = createRouter({
   routes: [
-    { path: '', name: 'home', component: () => import('@/views/AppHome.vue') },
-    { path: '/about', name: 'about', component: () => import('@/views/AppAbout.vue') },
+    {
+      path: '',
+      name: 'home',
+      component: () => import('@/views/shop/ShopHome.vue'),
+      children: [
+        {
+          path: 'cart',
+          name: 'cart',
+          component: () => import('@/views/shop/ShopCart.vue'),
+        },
+        {
+          path: 'products',
+          name: 'userProducts',
+          component: () => import('@/views/shop/ShopProducts.vue'),
+        },
+        {
+          path: 'product/:productId',
+          name: 'product',
+          component: () => import('@/views/shop/ShopProduct.vue'),
+        },
+      ],
+    },
+    { path: '/about', name: 'about', component: () => import('@/views/shop/ShopAbout.vue') },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/AppDashboard.vue'),
+      component: () => import('@/views/dashboard/AppDashboard.vue'),
       meta: {
         needsAuth: true,
       },
@@ -18,22 +39,22 @@ const router = createRouter({
         {
           path: 'products',
           name: 'products',
-          component: () => import('@/views/AppProducts.vue'),
+          component: () => import('@/views/dashboard/AppProducts.vue'),
         },
         {
           path: 'coupons',
           name: 'coupons',
-          component: () => import('@/views/AppCoupons.vue'),
+          component: () => import('@/views/dashboard/AppCoupons.vue'),
         },
         {
           path: 'orders',
           name: 'orders',
-          component: () => import('@/views/AppOrders.vue'),
+          component: () => import('@/views/dashboard/AppOrders.vue'),
         },
         {
           path: 'articles',
           name: 'articles',
-          component: () => import('@/views/AppArticles.vue'),
+          component: () => import('@/views/dashboard/AppArticles.vue'),
         },
       ],
     },
@@ -49,7 +70,7 @@ router.beforeEach(async (to) => {
   return axios({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/user/check`,
-    headers: { Authorization: authToken() },
+    headers: { Authorization: getAuthToken() },
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
