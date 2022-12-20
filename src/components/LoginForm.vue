@@ -2,7 +2,6 @@
 import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import authToken from '@/helper/getAuthToken';
 
 const router = useRouter();
 

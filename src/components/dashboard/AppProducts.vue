@@ -66,7 +66,6 @@ async function renderProducts(page = 1) {
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
-      console.log('render err');
     });
 }
 
