@@ -19,7 +19,10 @@
         <td>
           <div>
             <button @click="productCheckMore(product.id)">查看更多</button>
-            <button @click="productAddToCart()">加到購物車</button>
+            <button :disabled="loadingProduct.includes(product.id)" @click="addToCart(product.id)">
+              <div v-if="loadingProduct.includes(product.id)">Loading...</div>
+              加到購物車
+            </button>
           </div>
         </td>
       </tr>
@@ -45,12 +48,30 @@ const router = useRouter();
 const products = ref([]);
 const pagination = ref({});
 
+const loadingProduct = ref([]);
+
 function productCheckMore(targetId) {
   router.push(`/product/${targetId}`);
 }
 
-function productAddToCart() {
-  console.log('add to cart clicked');
+function addToCart(productId, quantity = 1) {
+  loadingProduct.value = [...loadingProduct.value, productId];
+  axios({
+    method: 'post',
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart`,
+    headers: { Authorization: getAuthToken() },
+    data: { data: { product_id: productId, qty: quantity } },
+  })
+    .then((res) => {
+      if (!res.data.success) throw new Error(`${res.data.message}`);
+      useToast().success(`${res.data.message}`);
+    })
+    .catch((err) => {
+      useToast().error(`${err.message}`);
+    })
+    .finally(() => {
+      loadingProduct.value = loadingProduct.value.filter((product) => product !== productId);
+    });
 }
 
 // Remotely get products by given page number, then render them
