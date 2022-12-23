@@ -1,24 +1,24 @@
 <template>
   <h1>商品列表</h1>
-  <hr />
+
   <div v-if="!cartsData?.carts?.length">目前購物車內無商品</div>
 
-  <div>
-    <button v-if="cartsData?.carts?.length" @click="deleteAllCart()">刪除全部購物車</button>
-    <form
-      @submit.prevent="
-        (e) => {
-          submitCoupon(e.target);
-        }
-      "
-    >
-      <label>
-        優惠券代碼
-        <input name="couponCode" type="text" placeholder="請輸入優惠券代碼……" required />
-      </label>
-      <button type="submit">使用優惠券</button>
-    </form>
-  </div>
+  <button v-if="cartsData?.carts?.length" @click="deleteAllCart()">刪除全部購物車</button>
+  <form
+    v-if="cartsData?.carts?.length"
+    @submit.prevent="
+      (e) => {
+        submitCoupon(e.target);
+      }
+    "
+  >
+    <label>
+      優惠券代碼
+      <input name="couponCode" type="text" placeholder="請輸入優惠券代碼……" required />
+    </label>
+    <button type="submit">使用優惠券</button>
+  </form>
+
   <table v-if="cartsData?.carts?.length">
     <thead>
       <tr>
