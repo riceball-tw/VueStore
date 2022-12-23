@@ -5,66 +5,49 @@ import getAuthToken from '@/helper/getAuthToken';
 
 const router = createRouter({
   routes: [
+    // User Side
     {
-      path: '',
-      name: 'home',
-      component: () => import('@/views/shop/ShopHome.vue'),
+      path: '/',
+      name: 'shop',
+      component: () => import('@/views/shop/ShopBase.vue'),
       children: [
         {
-          path: 'cart',
-          name: 'cart',
-          component: () => import('@/views/shop/ShopCart.vue'),
+          path: '',
+          name: 'home',
+          component: () => import('@/views/shop/ShopHome.vue'),
         },
-        {
-          path: 'cartInfo',
-          name: 'cartInfo',
-          component: () => import('@/views/shop/ShopCartInfo.vue'),
-        },
-        {
-          path: 'products',
-          name: 'userProducts',
-          component: () => import('@/views/shop/ShopProducts.vue'),
-        },
-        {
-          path: 'product/:productId',
-          name: 'product',
-          component: () => import('@/views/shop/ShopProduct.vue'),
-        },
-        {
-          path: 'checkout/:orderId',
-          name: 'checkout',
-          component: () => import('@/views/shop/ShopCheckout.vue'),
-        },
+        { path: '/about', name: 'about', component: () => import('@/views/shop/ShopAbout.vue') },
+        { path: '/products', name: 'products', component: () => import('@/views/shop/ShopProducts.vue') },
+        { path: '/product/:productId', name: 'product', component: () => import('@/views/shop/ShopProduct.vue') },
+        { path: '/cart', name: 'cart', component: () => import('@/views/shop/ShopCart.vue') },
+        { path: '/cartInfo', name: 'cartInfo', component: () => import('@/views/shop/ShopCartInfo.vue') },
+        { path: '/checkout/:orderId', name: 'checkout', component: () => import('@/views/shop/ShopCheckout.vue') },
+        { path: '/blog', name: 'blog', component: () => import('@/views/shop/ShopBlog.vue') },
+        { path: '/contact', name: 'contact', component: () => import('@/views/shop/ShopContact.vue') },
       ],
     },
-    { path: '/about', name: 'about', component: () => import('@/views/shop/ShopAbout.vue') },
+    // Admin Side
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/dashboard/AppDashboard.vue'),
-      meta: {
-        needsAuth: true,
-      },
+      meta: { needsAuth: true },
+      component: () => import('@/views/dashboard/dashboardBase.vue'),
       children: [
         {
           path: 'products',
-          name: 'products',
-          component: () => import('@/views/dashboard/AppProducts.vue'),
+          name: 'dashboardProducts',
+          component: () => import('@/views/dashboard/dashboardProducts.vue'),
         },
         {
           path: 'coupons',
-          name: 'coupons',
-          component: () => import('@/views/dashboard/AppCoupons.vue'),
+          name: 'dashboardCoupons',
+          component: () => import('@/views/dashboard/dashboardCoupons.vue'),
         },
-        {
-          path: 'orders',
-          name: 'orders',
-          component: () => import('@/views/dashboard/AppOrders.vue'),
-        },
+        { path: 'orders', name: 'dashboardOrders', component: () => import('@/views/dashboard/dashboardOrders.vue') },
         {
           path: 'articles',
-          name: 'articles',
-          component: () => import('@/views/dashboard/AppArticles.vue'),
+          name: 'dashboardArticles',
+          component: () => import('@/views/dashboard/dashboardArticles.vue'),
         },
       ],
     },
