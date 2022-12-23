@@ -6,20 +6,20 @@
   <table>
     <thead>
       <tr>
+        <th width="120">名稱</th>
+        <th width="120">折扣百分比</th>
         <th width="120">到期日</th>
-        <th width="120">標題</th>
-        <th width="120">折扣</th>
         <th width="120">折扣碼</th>
-        <th width="120">已啟用/總數</th>
+        <th width="120">啟用狀態</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="coupon in coupons" :key="coupon.key">
-        <td>{{ $unitFilters.toReadableDate(coupon.due_date) }}</td>
         <td>{{ coupon.title }}</td>
-        <td>{{ coupon.percent }}</td>
+        <td>{{ coupon.percent }}%</td>
+        <td>{{ $unitFilters.toReadableDate(coupon.due_date) }}</td>
         <td>{{ coupon.code }}</td>
-        <td>{{ coupon.is_enabled }}/ {{ coupon.num }}</td>
+        <td>{{ coupon.is_enabled === 1 ? '已啟用' : '未啟用' }}</td>
         <td>
           <div>
             <button @click="openEditCouponModal(coupon)">編輯</button>

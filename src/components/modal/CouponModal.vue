@@ -19,14 +19,16 @@
       </label>
       <!-- is_enabled -->
       <label>
-        已啟用
-        <input v-model="tempCoupon.is_enabled" type="number" placeholder="請輸入優惠券啟用狀態……" required />
+        是否啟用
+        <input v-model="tempCoupon.is_enabled" type="checkbox" :true-value="1" :false-value="0" />
       </label>
       <!-- percent -->
-      <label>
-        折扣數
-        <input v-model="tempCoupon.percent" type="number" placeholder="請輸入優惠券折扣數……" required />
-      </label>
+      <div>
+        <label>
+          折扣數
+          <input v-model="tempCoupon.percent" type="number" placeholder="請輸入優惠券折扣數……" required />
+        </label>
+      </div>
       <!-- due_date -->
       <label>
         到期日
@@ -46,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, toRefs, unref, onMounted } from 'vue';
+import { ref, toRefs, onMounted } from 'vue';
 import { toUnixTimestamp } from '@/helper/unitFilter';
 
 const emit = defineEmits(['confirm', 'cancel']);
@@ -65,7 +67,9 @@ tempCoupon.value = coupon;
 
 function formSubmit() {
   tempCoupon.value.due_date = toUnixTimestamp(tempCoupon.value.due_date);
-  emit('confirm', unref(tempCoupon));
+  const { title, is_enabled, percent, due_date, code } = tempCoupon.value;
+  const unwrappedCoupon = { title, is_enabled, percent, due_date, code };
+  emit('confirm', unwrappedCoupon);
 }
 
 onMounted(() => {

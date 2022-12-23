@@ -1,13 +1,25 @@
 <template>
   <h1>商品列表</h1>
-
-  <div v-if="!cartsData.carts.length">目前購物車內無商品</div>
+  <hr />
+  <div v-if="!cartsData?.carts?.length">目前購物車內無商品</div>
 
   <div>
-    <button v-if="cartsData.carts.length" @click="deleteAllCart()">刪除全部購物車</button>
+    <button v-if="cartsData?.carts?.length" @click="deleteAllCart()">刪除全部購物車</button>
+    <form
+      @submit.prevent="
+        (e) => {
+          submitCoupon(e.target);
+        }
+      "
+    >
+      <label>
+        優惠券代碼
+        <input name="couponCode" type="text" placeholder="請輸入優惠券代碼……" required />
+      </label>
+      <button type="submit">使用優惠券</button>
+    </form>
   </div>
-
-  <table v-if="cartsData.carts.length">
+  <table v-if="cartsData?.carts?.length">
     <thead>
       <tr>
         <th>品名</th>
@@ -32,7 +44,12 @@
             "
           />/{{ cart.product?.unit ? cart.product.unit : '個' }}
         </td>
-        <td>{{ cart.total }}</td>
+        <td>
+          <del v-if="cart.total !== cart.final_total">{{ cart.total }}</del>
+          <span v-else>{{ cart.total }}</span>
+        </td>
+        <td v-if="cart.total !== cart.final_total">折扣價：{{ cart.final_total }}</td>
+
         <td>
           <button @click="deleteCart(cart.id)">刪除</button>
         </td>
@@ -40,8 +57,8 @@
     </tbody>
     <tfoot>
       <tr>
-        <td>Total: {{ cartsData.total }}</td>
-        <td>FinalTotal: {{ cartsData.final_total }}</td>
+        <td>總計: {{ cartsData.total }}</td>
+        <td v-if="cartsData.total !== cartsData.final_total">折扣價: {{ cartsData.final_total }}</td>
       </tr>
     </tfoot>
   </table>
@@ -104,11 +121,10 @@ function handleEditCart(cartId, newQuantity = 1) {
   editCart(cartId, parseInt(newQuantity, 10));
 }
 
-function deleteAllCart() {
+function deleteCart(cartId) {
   axios({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/carts`,
-    headers: { Authorization: getAuthToken() },
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart/${cartId}`,
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
@@ -120,16 +136,36 @@ function deleteAllCart() {
     });
 }
 
-function deleteCart(cartId) {
+function deleteAllCart() {
   axios({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart/${cartId}`,
-    headers: { Authorization: getAuthToken() },
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/carts`,
   })
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
       useToast().success(`${res.data.message}`);
       renderCarts();
+    })
+    .catch((err) => {
+      useToast().error(`${err.message}`);
+    });
+}
+
+async function submitCoupon(targetForm) {
+  axios({
+    method: 'post',
+    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/coupon`,
+    data: {
+      data: {
+        code: targetForm.couponCode.value,
+      },
+    },
+  })
+    .then((res) => {
+      if (!res.data.success) throw new Error(`${res.data.message}`);
+      useToast().success(`${res.data.message}`);
+      renderCarts();
+      targetForm.reset();
     })
     .catch((err) => {
       useToast().error(`${err.message}`);
