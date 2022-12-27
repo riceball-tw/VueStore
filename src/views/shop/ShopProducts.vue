@@ -1,59 +1,66 @@
 <template>
-  <h1>商店產品列表</h1>
+  <div class="overflow-x-auto w-full">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>產品圖片</th>
+          <th>產品名稱</th>
+          <th>產品價格</th>
+          <th>產品原價</th>
+          <th>行動</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="product in products" :key="product.id">
+          <td>
+            <img width="300" :src="product.imageUrl" :alt="product.title" />
+          </td>
+          <td>{{ product.title }}</td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.origin_price }}</td>
 
-  <table>
-    <thead>
-      <tr>
-        <th width="120">產品圖片</th>
-        <th width="120">產品名稱</th>
-        <th width="120">產品價格</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="product in products" :key="product.id">
-        <td>
-          <img :src="product.imageUrl" :alt="product.title" />
-        </td>
-        <td>{{ product.title }}</td>
-        <td>{{ product.price }}</td>
-        <td>
-          <div>
-            <button @click="productCheckMore(product.id)">查看更多</button>
-            <button :disabled="loadingProduct.includes(product.id)" @click="addToCart(product.id)">
-              <div v-if="loadingProduct.includes(product.id)">Loading...</div>
-              加到購物車
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <Pagination :pages="pagination" @pagination-change="paginationChange" />
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-outline" @click="productCheckMore(product.id)">查看更多</button>
+              <button
+                class="btn btn-outline -ml-px"
+                :disabled="loadingProduct.includes(product.id)"
+                @click="addToCart(product.id)"
+              >
+                <div v-if="loadingProduct.includes(product.id)">Loading...</div>
+                加到購物車
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <Pagination :pages="pagination" @pagination-change="handlePaginationChange" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
-import { $vfm } from 'vue-final-modal';
-import ProductModal from '@/components/modal/ProductModal.vue';
-import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
-import Pagination from '@/components/AppPagination.vue';
-import getAuthToken from '@/helper/getAuthToken';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
-
-const router = useRouter();
+import axios from 'axios';
+import getAuthToken from '@/helper/getAuthToken';
+import Pagination from '@/components/AppPagination.vue';
 
 // UI Data
 const products = ref([]);
 const pagination = ref({});
 
+// Other State
 const loadingProduct = ref([]);
+const router = useRouter();
 
+// Check single product
 function productCheckMore(targetId) {
   router.push(`/product/${targetId}`);
 }
 
+// Add prodcut to cart
 function addToCart(productId, quantity = 1) {
   loadingProduct.value = [...loadingProduct.value, productId];
   axios({
@@ -90,32 +97,12 @@ async function renderProducts(page = 1) {
       useToast().error(`${err.message}`);
     });
 }
-function paginationChange(page) {
+
+// Re-render target page provided by pagination component
+function handlePaginationChange(page) {
   renderProducts(page);
 }
 
-// Remotely create product from input data
-function addProduct(targetProduct) {
-  axios({
-    method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-    data: {
-      ...targetProduct,
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderProducts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
-}
-
+// Init
 renderProducts();
 </script>
