@@ -1,12 +1,7 @@
-<script setup></script>
-
 <template>
-  <router-view />
-  <ul class="bg-red-400">
-    <li><router-link :to="{ name: 'home' }">Home</router-link></li>
-    <li><router-link :to="{ name: 'cart' }">Cart</router-link></li>
-    <li><router-link :to="{ name: 'cartInfo' }">CartInfo</router-link></li>
-    <li><router-link :to="{ name: 'userProducts' }">Products</router-link></li>
-    <!-- <li><router-link :to="{ name: 'checkout' }">Checkout</router-link></li> -->
-  </ul>
+  <Hero title="首頁" description="一些首頁的描述文字" />
 </template>
+
+<script setup>
+import Hero from '@/components/AppHero.vue';
+</script>
