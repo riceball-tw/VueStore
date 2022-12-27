@@ -1,22 +1,24 @@
 <template>
-  <nav aria-label="Page navigation example">
-    <ul>
-      <li>
-        <a href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-      <li v-for="page in pages.total_pages" :key="page" :class="{ 'bg-red-300': page === pages.current_page }">
-        <a href="#" @click.prevent="pageChange(page)">
-          {{ page }}
-        </a>
-      </li>
-      <li>
-        <a href="#" aria-label="Next" @click.prevent="pageNext(pages)">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    </ul>
+  <nav v-if="pages.total_pages" aria-label="Page Navigation">
+    <div class="btn-group mt-8">
+      <button class="btn" href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
+        <span aria-hidden="true">&laquo;</span>
+      </button>
+      <button
+        v-for="page in pages.total_pages"
+        :key="page.id"
+        class="btn"
+        :class="{ 'btn-active': page === pages.current_page }"
+        href="#"
+        @click.prevent="pageChange(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button class="btn" aria-label="Next" @click.prevent="pageNext(pages)">
+        <span aria-hidden="true">&raquo;</span>
+      </button>
+    </div>
   </nav>
 </template>
 
