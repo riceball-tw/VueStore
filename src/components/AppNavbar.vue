@@ -13,7 +13,6 @@
           <li><router-link :to="{ name: 'products' }">所有產品</router-link></li>
           <li><router-link :to="{ name: 'blog' }">產品文章</router-link></li>
           <li><router-link :to="{ name: 'contact' }">聯絡我們</router-link></li>
-          <li><router-link :to="{ name: 'login' }" @click="logoutClicked">Logout</router-link></li>
         </ul>
       </div>
       <router-link :to="{ name: 'home' }" class="btn btn-ghost normal-case text-xl">
