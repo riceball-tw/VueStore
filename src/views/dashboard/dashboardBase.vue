@@ -11,7 +11,11 @@
       <label for="my-drawer-2" class="drawer-overlay"></label>
 
       <ul class="menu p-4 w-80 bg-base-100 text-base-content">
-        <!-- Sidebar content here -->
+        <li>
+          <router-link :to="{ name: 'home' }" class="btn-ghost">
+            <img width="180" height="48" src="/vueStore.svg" alt="Vue Store Logo" />
+          </router-link>
+        </li>
         <li>
           <router-link :to="{ name: 'dashboardProducts' }">
             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
