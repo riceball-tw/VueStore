@@ -28,6 +28,8 @@
 - [Vue Router](https://router.vuejs.org/) - SPA 網站路由設置
 - [Vue Toastification](https://vue-toastification.maronato.dev/) - 吐司彈跳框套件
 - [Vue Final Modal](https://vue-final-modal.org/) - 彈跳框套件
+- [CKEditor 5](https://ckeditor.com/ckeditor-5/) - 文章編輯器
+- [Vue Tags Input](http://www.vue-tags-input.com/#/) - 標籤
 
 ## 參考資料
 
