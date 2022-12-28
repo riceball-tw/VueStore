@@ -1,54 +1,104 @@
 <template>
-  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
-    <div class="modal__title">
-      <slot name="title"></slot>
-    </div>
-    <form
-      id="couponModal"
-      @submit.prevent="
-        () => {
-          close();
-          formSubmit();
-        }
-      "
-    >
-      <!-- Title -->
-      <label>
-        名稱
-        <input v-model="tempCoupon.title" type="text" placeholder="請輸入優惠券名稱……" required />
-      </label>
-      <!-- is_enabled -->
-      <label>
-        是否啟用
-        <input v-model="tempCoupon.is_enabled" type="checkbox" :true-value="1" :false-value="0" />
-      </label>
-      <!-- percent -->
-      <div>
-        <label>
-          折扣數
-          <input v-model="tempCoupon.percent" type="number" placeholder="請輸入優惠券折扣數……" required />
-        </label>
+  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="flex justify-center items-center">
+    <div class="modal-box w-full max-w-none p-8">
+      <div class="text-3xl font-bold mb-8">
+        <slot name="title" />
       </div>
-      <!-- due_date -->
-      <label>
-        到期日
-        <input v-model="tempCoupon.due_date" type="date" placeholder="請輸入優惠券到期日……" required />
-      </label>
-      <!-- code -->
-      <label>
-        折扣碼
-        <input v-model="tempCoupon.code" type="text" placeholder="請輸入優惠券折扣代碼……" required />
-      </label>
-    </form>
-    <div class="modal__action">
-      <button form="couponModal" type="submit">確認</button>
-      <button @click="close()">取消</button>
+      <form
+        id="couponModal"
+        @submit.prevent="
+          () => {
+            close();
+            formSubmit();
+          }
+        "
+      >
+        <!-- Title -->
+        <div class="form-control w-full">
+          <label for="title" class="label">
+            <span class="label-text">名稱</span>
+          </label>
+          <input
+            id="title"
+            v-model="tempCoupon.title"
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="請輸入優惠券名稱……"
+            required
+          />
+        </div>
+
+        <!-- code -->
+        <div class="form-control w-full">
+          <label for="code" class="label">
+            <span class="label-text">折扣碼</span>
+          </label>
+          <input
+            id="code"
+            v-model="tempCoupon.code"
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="請輸入優惠券折扣代碼……"
+            required
+          />
+        </div>
+
+        <!-- percent -->
+        <div class="form-control w-full">
+          <label for="percent" class="label">
+            <span class="label-text">折扣數</span>
+          </label>
+          <div class="input-group">
+            <input
+              id="percent"
+              v-model="tempCoupon.percent"
+              class="input input-bordered w-full"
+              type="number"
+              placeholder="請輸入優惠券折扣數……"
+              required
+            />
+            <span>%</span>
+          </div>
+        </div>
+        <!-- due_date -->
+        <div class="form-control w-full">
+          <label for="dueDate" class="label">
+            <span class="label-text">到期日</span>
+          </label>
+          <input
+            id="dueDate"
+            v-model="tempCoupon.due_date"
+            type="date"
+            class="input input-bordered w-full"
+            placeholder="請輸入優惠券到期日……"
+            required
+          />
+        </div>
+
+        <!-- is_enabled -->
+        <div class="form-control w-full">
+          <label for="isEnabled" class="label">
+            <span class="label-text">是否啟用</span>
+            <input
+              v-model="tempCoupon.is_enabled"
+              class="toggle toggle-success"
+              type="checkbox"
+              :true-value="1"
+              :false-value="0"
+            />
+          </label>
+        </div>
+      </form>
+      <div class="modal-action flex flex-wrap gap-4">
+        <button class="btn btn-primary btn-wide" form="couponModal" type="submit">確認</button>
+        <button class="btn" @click="close()">取消</button>
+      </div>
     </div>
   </vue-final-modal>
 </template>
 
 <script setup>
-import { ref, toRefs, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { toUnixTimestamp } from '@/helper/unitFilter';
 
 const emit = defineEmits(['confirm', 'cancel']);
@@ -61,15 +111,18 @@ const props = defineProps({
   },
 });
 
-const { coupon } = toRefs(props);
 const tempCoupon = ref({});
-tempCoupon.value = coupon;
+tempCoupon.value = { ...props.coupon };
 
 function formSubmit() {
-  tempCoupon.value.due_date = toUnixTimestamp(tempCoupon.value.due_date);
-  const { title, is_enabled, percent, due_date, code } = tempCoupon.value;
-  const unwrappedCoupon = { title, is_enabled, percent, due_date, code };
-  emit('confirm', unwrappedCoupon);
+  const newCoupon = {
+    title: tempCoupon.value.title,
+    is_enabled: tempCoupon.value.is_enabled,
+    percent: tempCoupon.value.percent,
+    due_date: toUnixTimestamp(tempCoupon.value.due_date),
+    code: tempCoupon.value.code,
+  };
+  emit('confirm', newCoupon);
 }
 
 onMounted(() => {
@@ -86,38 +139,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped>
-::v-deep(.modal-container) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-::v-deep(.modal-content) {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  margin: 0 1rem;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
-  background: #fff;
-}
-.modal__title {
-  margin: 0 2rem 0 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-.modal__close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-}
-</style>
-
-<style scoped>
-.dark-mode div::v-deep(.modal-content) {
-  border-color: #2d3748;
-  background-color: #1a202c;
-}
-</style>
