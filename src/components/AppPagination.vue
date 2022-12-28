@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="pages.total_pages" aria-label="Page Navigation">
+  <nav v-if="pages.total_pages && pages.total_pages !== 1" aria-label="Page Navigation">
     <div class="btn-group mt-8">
       <button class="btn" href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
         <span aria-hidden="true">&laquo;</span>
