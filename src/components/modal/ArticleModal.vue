@@ -1,69 +1,148 @@
 <template>
-  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="modal-container" content-class="modal-content">
-    <span class="modal__title">
-      <slot name="title"></slot>
-    </span>
-    <form
-      id="articleForm"
-      class="flex flex-col"
-      @submit.prevent="
-        () => {
-          close();
-          modalSubmit();
-        }
-      "
-    >
-      <!-- title -->
-      <label>
-        標題
-        <input v-model="tempArticle.title" type="text" placeholder="請輸入文章標題" required />
-      </label>
-      <!-- description -->
-      <label>
-        簡述
-        <input v-model="tempArticle.description" type="text" placeholder="請輸入文章簡述" />
-      </label>
-      <!-- image -->
-      <label>
-        圖片
-        <input v-model="tempArticle.image" type="text" placeholder="請輸入文章標題" />
-      </label>
-      <!-- tag -->
-      <label>
-        標籤
-        <input v-model="tempArticle.tag" type="text" placeholder="請輸入文章標題" />
-      </label>
-      <!-- create_at -->
-      <label>
-        創建日期
-        <input v-model.number="tempArticle.create_at" type="text" placeholder="請輸入文章標題" required />
-      </label>
-      <!-- author -->
-      <label>
-        作者
-        <input v-model="tempArticle.author" type="text" placeholder="請輸入文章標題" required />
-      </label>
-      <!-- isPublic -->
-      <label>
-        是否公開
-        <input v-model="tempArticle.isPublic" type="checkbox" placeholder="請輸入文章標題" />
-      </label>
-      <!-- content -->
-      <label>
-        內容
-        <input v-model="tempArticle.content" type="text" placeholder="請輸入文章標題" required />
-      </label>
-    </form>
+  <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="flex justify-center items-center">
+    <div style="max-width: 1200px" class="modal-box w-full max-w-none p-8">
+      <div class="text-3xl font-bold mb-8">
+        <slot name="title" />
+      </div>
+      <form
+        id="articleForm"
+        class="flex gap-4 flex-col xl:flex-row"
+        @submit.prevent="
+          () => {
+            close();
+            modalSubmit();
+          }
+        "
+      >
+        <div>
+          <!-- Title -->
+          <div class="form-control w-full">
+            <label for="title" class="label">
+              <span class="label-text">標題</span>
+            </label>
+            <input
+              id="title"
+              v-model="tempArticle.title"
+              class="input input-bordered w-full"
+              type="text"
+              placeholder="請輸入文章標題……"
+              required
+            />
+          </div>
 
-    <div class="modal__action">
-      <button type="submit" form="articleForm">確認</button>
-      <button @click="close()">取消</button>
+          <!-- Tag -->
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">標籤</span>
+            </label>
+            <vue-tags-input
+              v-model="tag"
+              placeholder="請輸入標籤……"
+              :tags="tempArticle.tag"
+              @tags-changed="(newTags) => (tempArticle.tag = newTags)"
+            />
+          </div>
+
+          <!-- Author -->
+          <div class="form-control w-full">
+            <label for="author" class="label">
+              <span class="label-text">作者</span>
+            </label>
+            <input
+              id="author"
+              v-model="tempArticle.author"
+              class="input input-bordered w-full"
+              type="text"
+              placeholder="請輸入文章作者……"
+              required
+            />
+          </div>
+
+          <div class="flex gap-4 flex-wrap md:flex-nowrap">
+            <!-- create_at -->
+            <div class="form-control w-full">
+              <label for="createAt" class="label">
+                <span class="label-text">創建日期</span>
+              </label>
+              <input
+                id="createAt"
+                v-model="tempArticle.create_at"
+                type="date"
+                class="input input-bordered w-full"
+                placeholder="請輸入優惠券到期日……"
+                required
+              />
+            </div>
+
+            <!-- Image -->
+            <div class="form-control w-full">
+              <label for="image" class="label">
+                <span class="label-text">圖片</span>
+              </label>
+              <input
+                id="image"
+                v-model="tempArticle.image"
+                class="input input-bordered w-full"
+                type="text"
+                placeholder="請輸入文章圖片……"
+              />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-control w-full">
+            <label for="description" class="label">
+              <span class="label-text">簡述</span>
+            </label>
+            <textarea
+              id="description"
+              v-model="tempArticle.description"
+              class="textarea input-bordered"
+              placeholder="請輸入文章簡述……"
+            ></textarea>
+          </div>
+
+          <!-- isPublic? -->
+          <div class="form-control w-full">
+            <label for="isPublic" class="label">
+              <span class="label-text">是否公開</span>
+              <input
+                id="isPublic"
+                v-model="tempArticle.isPublic"
+                class="toggle toggle-success"
+                type="checkbox"
+                :true-value="true"
+                :false-value="false"
+              />
+            </label>
+          </div>
+        </div>
+        <div>
+          <label for="content" class="label">
+            <span class="label-text">說明內容</span>
+          </label>
+
+          <textarea ref="editorComponent" v-model="tempArticle.content"></textarea>
+        </div>
+      </form>
+
+      <div class="modal-action flex flex-wrap gap-4">
+        <button class="btn btn-primary btn-wide" type="submit" form="articleForm">確認</button>
+        <button class="btn" @click="close()">取消</button>
+      </div>
     </div>
   </vue-final-modal>
 </template>
 
 <script setup>
-import { ref, toRefs, unref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { toUnixTimestamp } from '@/helper/unitFilter';
+import VueTagsInput from '@sipec/vue3-tags-input';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import axios from 'axios';
+import getAuthToken from '@/helper/getAuthToken';
+
+const editorComponent = ref(null);
 
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -76,19 +155,132 @@ const props = defineProps({
 });
 
 const tempArticle = ref({});
-const { article } = toRefs(props);
-tempArticle.value = unref(article);
+tempArticle.value = { ...props.article };
+
+const tag = ref('');
 
 if (!tempArticle.value.isPublic) {
   tempArticle.value.isPublic = false;
 }
-if (!tempArticle.value.create_at) {
-  tempArticle.value.create_at = Math.floor(Date.now() / 1000);
-}
 
 function modalSubmit() {
-  emit('confirm', unref(tempArticle));
+  const newArticle = {
+    id: tempArticle.value.id,
+    title: tempArticle.value.title,
+    author: tempArticle.value.author,
+    description: tempArticle.value.description,
+    content: tempArticle.value.content,
+    create_at: toUnixTimestamp(tempArticle.value.create_at),
+    image: tempArticle.value.image,
+    tag: tempArticle.value.tag,
+    isPublic: tempArticle.value.isPublic,
+  };
+  emit('confirm', newArticle);
 }
+
+onMounted(() => {
+  class MyUploadAdapter {
+    constructor(loader) {
+      this.loader = loader;
+    }
+
+    upload() {
+      return this.loader.file.then(
+        (file) =>
+          new Promise((resolve) => {
+            this.sendRequest(file, resolve);
+          }),
+      );
+    }
+
+    sendRequest(file, resolve) {
+      const data = new FormData();
+      data.append('upload', file);
+      axios({
+        method: 'post',
+        url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/upload`,
+        headers: {
+          Authorization: getAuthToken(),
+        },
+        data,
+      }).then((res) => {
+        if (!res.data.success) return;
+        this.loader.imageUrl = res.data.imageUrl;
+        resolve({ default: res.data.imageUrl });
+      });
+    }
+  }
+
+  function MyCustomUploadAdapterPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
+      // Configure the URL to the upload script in your back-end here!
+      new MyUploadAdapter(loader);
+  }
+
+  ClassicEditor.create(editorComponent.value, {
+    extraPlugins: [MyCustomUploadAdapterPlugin],
+    toolbar: [
+      'heading',
+      '|',
+      'bold',
+      'italic',
+      'blockQuote',
+      '|',
+      'uploadImage',
+      'link',
+      'insertTable',
+      'mediaEmbed',
+      '|',
+      'undo',
+      'redo',
+    ],
+    heading: {
+      options: [
+        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+        {
+          model: 'heading2',
+          view: 'h2',
+          title: 'Heading 2',
+          class: 'ck-heading_heading2',
+        },
+        {
+          model: 'heading3',
+          view: 'h3',
+          title: 'Heading 3',
+          class: 'ck-heading_heading3',
+        },
+        {
+          model: 'heading4',
+          view: 'h4',
+          title: 'Heading 4',
+          class: 'ck-heading_heading4',
+        },
+      ],
+    },
+    initialData: tempArticle.value.content,
+  })
+    .then((editor) => {
+      window.editor = editor;
+      editor.model.document.on('change:data', () => {
+        tempArticle.value.content = editor.getData();
+      });
+    })
+    .catch((error) => {
+      console.error('There was a problem initializing the editor.', error);
+    });
+
+  if (tempArticle.value.create_at) {
+    const isoString = new Date(tempArticle.value.create_at * 1000).toISOString();
+    const formattedDate = new Date(isoString)
+      .toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+      .replace(/\//g, '-');
+    tempArticle.value.create_at = formattedDate;
+  }
+});
 </script>
 
 <script>
@@ -96,38 +288,128 @@ export default {
   inheritAttrs: false,
 };
 </script>
-
-<style scoped>
-::v-deep(.modal-container) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+<style lang="css">
+/* style the background and the text color of the input ... */
+.vue-tags-input {
+  background: transparent !important;
 }
-::v-deep(.modal-content) {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  margin: 0 1rem;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
-  background: #fff;
-}
-.modal__title {
-  margin: 0 2rem 0 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-.modal__close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+.vue-tags-input,
+.ti-focus,
+.ti-input {
+  border: none !important;
 }
 </style>
+<style>
+/* Set CKEditor height in Vue.js [duplicate] */
+/* https://stackoverflow.com/questions/53935399/set-ckeditor-height-in-vue-js */
+.ck-editor__editable {
+  min-height: 200px;
+}
 
-<style scoped>
-.dark-mode div::v-deep(.modal-content) {
-  border-color: #2d3748;
-  background-color: #1a202c;
+.ck-editor {
+  max-width: 800px;
+}
+
+:root {
+  /* Overrides the border radius setting in the theme. */
+  --ck-border-radius: 4px;
+
+  /* Overrides the default font size in the theme. */
+  --ck-font-size-base: 14px;
+
+  /* Helper variables to avoid duplication in the colors. */
+  --ck-custom-background: hsl(270, 1%, 29%);
+  --ck-custom-foreground: hsl(255, 3%, 18%);
+  --ck-custom-border: hsl(300, 1%, 22%);
+  --ck-custom-white: hsl(0, 0%, 100%);
+
+  /* -- Overrides generic colors. ------------------------------------------------------------- */
+
+  --ck-color-base-foreground: var(--ck-custom-background);
+  --ck-color-focus-border: hsl(208, 90%, 62%);
+  --ck-color-text: hsl(0, 0%, 98%);
+  --ck-color-shadow-drop: hsla(0, 0%, 0%, 0.2);
+  --ck-color-shadow-inner: hsla(0, 0%, 0%, 0.1);
+
+  /* -- Overrides the default .ck-button class colors. ---------------------------------------- */
+
+  --ck-color-button-default-background: var(--ck-custom-background);
+  --ck-color-button-default-hover-background: hsl(270, 1%, 22%);
+  --ck-color-button-default-active-background: hsl(270, 2%, 20%);
+  --ck-color-button-default-active-shadow: hsl(270, 2%, 23%);
+  --ck-color-button-default-disabled-background: var(--ck-custom-background);
+
+  --ck-color-button-on-background: var(--ck-custom-foreground);
+  --ck-color-button-on-hover-background: hsl(255, 4%, 16%);
+  --ck-color-button-on-active-background: hsl(255, 4%, 14%);
+  --ck-color-button-on-active-shadow: hsl(240, 3%, 19%);
+  --ck-color-button-on-disabled-background: var(--ck-custom-foreground);
+
+  --ck-color-button-action-background: hsl(168, 76%, 42%);
+  --ck-color-button-action-hover-background: hsl(168, 76%, 38%);
+  --ck-color-button-action-active-background: hsl(168, 76%, 36%);
+  --ck-color-button-action-active-shadow: hsl(168, 75%, 34%);
+  --ck-color-button-action-disabled-background: hsl(168, 76%, 42%);
+  --ck-color-button-action-text: var(--ck-custom-white);
+
+  --ck-color-button-save: hsl(120, 100%, 46%);
+  --ck-color-button-cancel: hsl(15, 100%, 56%);
+
+  /* -- Overrides the default .ck-dropdown class colors. -------------------------------------- */
+
+  --ck-color-dropdown-panel-background: var(--ck-custom-background);
+  --ck-color-dropdown-panel-border: var(--ck-custom-foreground);
+
+  /* -- Overrides the default .ck-splitbutton class colors. ----------------------------------- */
+
+  --ck-color-split-button-hover-background: var(--ck-color-button-default-hover-background);
+  --ck-color-split-button-hover-border: var(--ck-custom-foreground);
+
+  /* -- Overrides the default .ck-input class colors. ----------------------------------------- */
+
+  --ck-color-input-background: var(--ck-custom-foreground);
+  --ck-color-input-border: hsl(257, 3%, 43%);
+  --ck-color-input-text: hsl(0, 0%, 98%);
+  --ck-color-input-disabled-background: hsl(255, 4%, 21%);
+  --ck-color-input-disabled-border: hsl(250, 3%, 38%);
+  --ck-color-input-disabled-text: hsl(0, 0%, 46%);
+
+  /* -- Overrides the default .ck-list class colors. ------------------------------------------ */
+
+  --ck-color-list-background: var(--ck-custom-background);
+  --ck-color-list-button-hover-background: var(--ck-color-base-foreground);
+  --ck-color-list-button-on-background: var(--ck-color-base-active);
+  --ck-color-list-button-on-background-focus: var(--ck-color-base-active-focus);
+  --ck-color-list-button-on-text: var(--ck-color-base-background);
+
+  /* -- Overrides the default .ck-balloon-panel class colors. --------------------------------- */
+
+  --ck-color-panel-background: var(--ck-custom-background);
+  --ck-color-panel-border: var(--ck-custom-border);
+
+  /* -- Overrides the default .ck-toolbar class colors. --------------------------------------- */
+
+  --ck-color-toolbar-background: var(--ck-custom-background);
+  --ck-color-toolbar-border: var(--ck-custom-border);
+
+  /* -- Overrides the default .ck-tooltip class colors. --------------------------------------- */
+
+  --ck-color-tooltip-background: hsl(252, 7%, 14%);
+  --ck-color-tooltip-text: hsl(0, 0%, 93%);
+
+  /* -- Overrides the default colors used by the ckeditor5-image package. --------------------- */
+
+  --ck-color-image-caption-background: hsl(0, 0%, 97%);
+  --ck-color-image-caption-text: hsl(0, 0%, 20%);
+
+  /* -- Overrides the default colors used by the ckeditor5-widget package. -------------------- */
+
+  --ck-color-widget-blurred-border: hsl(0, 0%, 87%);
+  --ck-color-widget-hover-border: hsl(43, 100%, 68%);
+  --ck-color-widget-editable-focus-background: var(--ck-custom-white);
+
+  /* -- Overrides the default colors used by the ckeditor5-link package. ---------------------- */
+
+  --ck-color-link-default: hsl(190, 100%, 75%);
 }
 </style>
