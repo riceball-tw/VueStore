@@ -26,6 +26,7 @@
     <div>
       <span class="footer-title">友站連結</span>
       <a target="_blank" href="https://www.webdong.dev">webdong</a>
+      <a target="_blank" href="https://www.tridong.com">tridong</a>
     </div>
 
     <div>
