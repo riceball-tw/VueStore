@@ -11,6 +11,10 @@
     "format": "prettier .  --write"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^35.4.0",
+    "@ckeditor/ckeditor5-editor-classic": "^35.4.0",
+    "@ckeditor/ckeditor5-vue": "^4.0.1",
+    "@sipec/vue3-tags-input": "^3.0.4",
     "axios": "^1.2.1",
     "daisyui": "^2.46.0",
     "vue": "^3.2.41",
