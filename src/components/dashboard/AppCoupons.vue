@@ -1,34 +1,57 @@
 <template>
-  <h1>優惠券列表</h1>
-  <div>
-    <button @click="openAddCouponModal()">新增優惠券</button>
+  <div class="flex justify-between w-full mb-8">
+    <h1 class="text-4xl font-bold">後台優惠券資訊</h1>
+
+    <button class="btn btn-primary" @click="openAddCouponModal()">新增優惠券</button>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th width="120">名稱</th>
-        <th width="120">折扣百分比</th>
-        <th width="120">到期日</th>
-        <th width="120">折扣碼</th>
-        <th width="120">啟用狀態</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="coupon in coupons" :key="coupon.key">
-        <td>{{ coupon.title }}</td>
-        <td>{{ coupon.percent }}%</td>
-        <td>{{ $unitFilters.toReadableDate(coupon.due_date) }}</td>
-        <td>{{ coupon.code }}</td>
-        <td>{{ coupon.is_enabled === 1 ? '已啟用' : '未啟用' }}</td>
-        <td>
-          <div>
-            <button @click="openEditCouponModal(coupon)">編輯</button>
-            <button @click="openDeleteCouponModal(coupon)">刪除</button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="overflow-x-auto w-full">
+    <table class="table table-zebra w-full">
+      <thead class="sticky top-0 z-20">
+        <tr>
+          <th>索引</th>
+          <th>名稱</th>
+          <th>折扣百分比</th>
+          <th>到期日</th>
+          <th>折扣碼</th>
+          <th>啟用狀態</th>
+          <th>行動</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(coupon, index) in coupons" :key="coupon.id">
+          <th>
+            {{ pagination.current_page === 1 ? index + 1 : index + 1 + pagination.current_page * 10 - 10 }}
+          </th>
+          <td>{{ coupon.title }}</td>
+          <td>{{ coupon.percent }}%</td>
+          <td>{{ $unitFilters.toReadableDate(coupon.due_date) }}</td>
+          <td>{{ coupon.code }}</td>
+          <td>
+            <span v-if="coupon.is_enabled" class="text-success">啟用</span>
+            <span v-else class="text-warning">未啟用</span>
+          </td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-outline btn-square" @click="openEditCouponModal(coupon)">
+                <svg title="編輯" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+                  <path
+                    d="M5 19h1.4l8.625-8.625-1.4-1.4L5 17.6ZM19.3 8.925l-4.25-4.2 1.4-1.4q.575-.575 1.413-.575.837 0 1.412.575l1.4 1.4q.575.575.6 1.388.025.812-.55 1.387ZM17.85 10.4 7.25 21H3v-4.25l10.6-10.6Zm-3.525-.725-.7-.7 1.4 1.4Z"
+                  />
+                </svg>
+              </button>
+              <button class="btn btn-outline btn-square hover:btn-error -ml-px" @click="openDeleteCouponModal(coupon)">
+                <svg title="刪除" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+                  <path
+                    d="M7 21q-.825 0-1.412-.587Q5 19.825 5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413Q17.825 21 17 21ZM17 6H7v13h10ZM9 17h2V8H9Zm4 0h2V8h-2ZM7 6v13Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <Pagination :pages="pagination" @pagination-change="paginationChange" />
 </template>
 
@@ -63,6 +86,7 @@ function renderCoupons(page = 1) {
     });
 }
 
+// Re-render target page provided by pagination component
 function paginationChange(page) {
   renderCoupons(page);
 }
