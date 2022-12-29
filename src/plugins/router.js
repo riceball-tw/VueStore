@@ -1,9 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import axios from 'axios';
-import getAuthToken from '@/helper/getAuthToken';
 
 function routerWrapper(app) {
+  const { axiosWithAuth } = app.config.globalProperties;
   const router = createRouter({
     routes: [
       // User Side
@@ -67,10 +66,9 @@ function routerWrapper(app) {
       loader.hide();
       return true;
     }
-    return axios({
+    return axiosWithAuth({
       method: 'post',
       url: `${import.meta.env.VITE_APP_API}/api/user/check`,
-      headers: { Authorization: getAuthToken() },
     })
       .then((res) => {
         if (!res.data.success) throw new Error(`${res.data.message}`);
