@@ -23,5 +23,5 @@ app
   .use(LoadingPlugin, { backgroundColor: '#000' }, { default: h(LoaderIcon) })
   .use(router(app))
   .use(vfmPlugin)
-  .use(Toast)
+  .use(Toast, { position: 'top-center', icon: true })
   .mount('#app');
