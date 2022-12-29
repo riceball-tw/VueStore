@@ -61,45 +61,29 @@
 </template>
 
 <script setup>
+import { ref, inject } from 'vue';
 import { useRoute } from 'vue-router';
-import { useToast } from 'vue-toastification';
-import getAuthToken from '@/helper/getAuthToken';
-import axios from 'axios';
-import { ref } from 'vue';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const { orderId } = useRoute().params;
 const orderData = ref({});
 
 function renderOrder() {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/order/${orderId}`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      orderData.value = res.data;
-    })
-
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/order/${orderId}`,
+  }).then((res) => {
+    orderData.value = res.data;
+  });
 }
 
 function payOrder(targetOrderId) {
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/pay/${targetOrderId}`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-    })
-
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/pay/${targetOrderId}`,
+  });
 }
 
 renderOrder();

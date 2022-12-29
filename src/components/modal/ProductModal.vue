@@ -291,10 +291,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-import getAuthToken from '@/helper/getAuthToken';
+import { ref, inject } from 'vue';
+
+const axiosWithAuth = inject('axiosWithAuth');
 
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -347,42 +346,26 @@ function uploadImageFile(imageFile) {
   const imageFormData = new FormData();
   imageFormData.append('file-to-upload', imageFile);
 
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/upload`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/upload`,
     data: imageFormData,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      tempProduct.value.imageUrl = res.data.imageUrl;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    tempProduct.value.imageUrl = res.data.imageUrl;
+  });
 }
 
 function uploadMultipleImageFile(imageFile, updateIndex) {
   const imageFormData = new FormData();
   imageFormData.append('file-to-upload', imageFile);
 
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/upload`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/upload`,
     data: imageFormData,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      tempProduct.value.imagesUrl[updateIndex] = res.data.imageUrl;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    tempProduct.value.imagesUrl[updateIndex] = res.data.imageUrl;
+  });
 }
 </script>
 

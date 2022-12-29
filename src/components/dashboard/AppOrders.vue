@@ -61,53 +61,37 @@
 
 <script setup>
 import { $vfm } from 'vue-final-modal';
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
-import getAuthToken from '@/helper/getAuthToken';
+import { ref, inject } from 'vue';
 import Pagination from '@/components/AppPagination.vue';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
-import axios from 'axios';
 import OrderModal from '@/components/modal/OrderModal.vue';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 // UI Data
 const orders = ref([]);
 const pagination = ref({});
 
+// Remotely get orders by given page number, then render them
 function renderOrders(page = 1) {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/orders?page=${page}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      orders.value = res.data.orders;
-      pagination.value = res.data.pagination;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/orders?page=${page}`,
+  }).then((res) => {
+    orders.value = res.data.orders;
+    pagination.value = res.data.pagination;
+  });
 }
 
 // Remotely delete coupon by given id
 function deleteOrder(orderId) {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/order/${orderId}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderOrders();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/order/${orderId}`,
+  }).then((res) => {
+    renderOrders();
+  });
 }
 
 function openDeleteOrderModal(targetOrder) {
@@ -121,29 +105,19 @@ function openDeleteOrderModal(targetOrder) {
         deleteOrder(targetOrder.id);
       },
     },
-    slots: {
-      title: '刪除訂單',
-    },
+    slots: { title: '刪除訂單' },
   });
 }
 
+// Remotely edit order from input data
 function editOrder(targetOrder) {
-  axios({
+  axiosWithAuth({
     method: 'put',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/order/${targetOrder.data.id}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/order/${targetOrder.data.id}`,
     data: { ...targetOrder },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderOrders();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    renderOrders();
+  });
 }
 
 function openEditOrderModal(targetOrder) {
@@ -162,9 +136,7 @@ function openEditOrderModal(targetOrder) {
         editOrder(newProduct);
       },
     },
-    slots: {
-      title: '編輯訂單',
-    },
+    slots: { title: '編輯訂單' },
   });
 }
 
@@ -173,22 +145,14 @@ function paginationChange(page) {
   renderOrders(page);
 }
 
+// Remotely delete all order
 function deleteAllOrders() {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/orders/all`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderOrders();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/orders/all`,
+  }).then((res) => {
+    renderOrders();
+  });
 }
 
 function openDeleteAllOrdersModal() {
@@ -199,9 +163,7 @@ function openDeleteAllOrdersModal() {
         deleteAllOrders();
       },
     },
-    slots: {
-      title: '刪除產品',
-    },
+    slots: { title: '刪除產品' },
   });
 }
 renderOrders();

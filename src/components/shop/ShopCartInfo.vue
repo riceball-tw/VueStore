@@ -101,31 +101,25 @@
 </template>
 
 <script setup>
+import { inject } from 'vue';
 import CheckOutStep from '@/components/ShopCheckoutStep.vue';
-import axios from 'axios';
-import getAuthToken from '@/helper/getAuthToken';
-import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const router = useRouter();
 
 function createOrder(orderData) {
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/order`,
-    headers: { Authorization: getAuthToken() },
+    url: `/order`,
+
     data: {
       ...orderData,
     },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      router.push({ path: `checkout/${res.data.orderId}` });
-    })
-
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    router.push({ path: `checkout/${res.data.orderId}` });
+  });
 }
 </script>

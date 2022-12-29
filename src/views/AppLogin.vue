@@ -1,7 +1,9 @@
 <script setup>
-import { useToast } from 'vue-toastification';
+import { inject } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const router = useRouter();
 
@@ -11,21 +13,14 @@ async function loginSubmit(form) {
     password: form.loginPassword.value,
   };
 
-  axios({
+  axiosWithAuth({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/admin/signin`,
     data: userInfo,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      const { token, expired } = res.data;
-      document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
-      useToast().success(`${res.data.message}`);
-      router.push({ name: 'dashboardHome' });
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    document.cookie = `hexToken=${res.data.token}; expires=${new Date(res.data.expired)}`;
+    router.push({ name: 'dashboardHome' });
+  });
 }
 </script>
 

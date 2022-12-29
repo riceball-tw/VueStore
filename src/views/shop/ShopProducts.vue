@@ -40,12 +40,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
-import getAuthToken from '@/helper/getAuthToken';
 import Pagination from '@/components/AppPagination.vue';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 // UI Data
 const products = ref([]);
@@ -63,39 +63,24 @@ function productCheckMore(targetId) {
 // Add prodcut to cart
 function addToCart(productId, quantity = 1) {
   loadingProduct.value = [...loadingProduct.value, productId];
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart`,
-    headers: { Authorization: getAuthToken() },
+    url: `/cart`,
     data: { data: { product_id: productId, qty: quantity } },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    })
-    .finally(() => {
-      loadingProduct.value = loadingProduct.value.filter((product) => product !== productId);
-    });
+  }).finally(() => {
+    loadingProduct.value = loadingProduct.value.filter((product) => product !== productId);
+  });
 }
 
 // Remotely get products by given page number, then render them
 async function renderProducts(page = 1) {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      products.value = res.data.products;
-      pagination.value = res.data.pagination;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/products/?page=${page}`,
+  }).then((res) => {
+    products.value = res.data.products;
+    pagination.value = res.data.pagination;
+  });
 }
 
 // Re-render target page provided by pagination component

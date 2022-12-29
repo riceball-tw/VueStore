@@ -135,12 +135,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, inject } from 'vue';
 import { toUnixTimestamp } from '@/helper/unitFilter';
 import VueTagsInput from '@sipec/vue3-tags-input';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import axios from 'axios';
-import getAuthToken from '@/helper/getAuthToken';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const editorComponent = ref(null);
 
@@ -196,15 +197,11 @@ onMounted(() => {
     sendRequest(file, resolve) {
       const data = new FormData();
       data.append('upload', file);
-      axios({
+      axiosWithAuth({
         method: 'post',
-        url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/upload`,
-        headers: {
-          Authorization: getAuthToken(),
-        },
+        url: `/admin/upload`,
         data,
       }).then((res) => {
-        if (!res.data.success) return;
         this.loader.imageUrl = res.data.imageUrl;
         resolve({ default: res.data.imageUrl });
       });

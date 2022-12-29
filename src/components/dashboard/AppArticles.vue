@@ -93,14 +93,14 @@
 </template>
 
 <script setup>
+import { ref, inject } from 'vue';
 import { $vfm } from 'vue-final-modal';
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
 import ArticleModal from '@/components/modal/ArticleModal.vue';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
-import getAuthToken from '@/helper/getAuthToken';
 import Pagination from '@/components/AppPagination.vue';
-import axios from 'axios';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 // UI Data
 const articles = ref([]);
@@ -111,21 +111,13 @@ const loadingSpecificArticleId = ref([]);
 
 // Remotely get articles by given page number, then render them
 function renderArticles(page = 1) {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/articles/?page=${page}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      articles.value = res.data.articles;
-      pagination.value = res.data.pagination;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `admin/articles/?page=${page}`,
+  }).then((res) => {
+    articles.value = res.data.articles;
+    pagination.value = res.data.pagination;
+  });
 }
 
 // Re-render target page provided by pagination component
@@ -135,25 +127,15 @@ function paginationChange(page) {
 
 // Remotely create article from input data
 function addArticle(targetArticle) {
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `admin/article`,
     data: {
       ...targetArticle,
     },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderArticles();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
+  }).then(() => {
+    renderArticles();
+  });
 }
 
 function openAddArticleModal() {
@@ -169,48 +151,28 @@ function openAddArticleModal() {
         addArticle(newArticle);
       },
     },
-    slots: {
-      title: '新增文章',
-    },
+    slots: { title: '新增文章' },
   });
 }
 
 // Remotely edit article from input data
 function editArticle(targetArticle) {
-  axios({
+  axiosWithAuth({
     method: 'put',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article/${targetArticle.data.id}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/article/${targetArticle.data.id}`,
     data: targetArticle,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderArticles();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then(() => {
+    renderArticles();
+  });
 }
 
 // Remotely get 1 specific article
 async function getSpecificArticle(articleId) {
-  const specificArticle = await axios({
+  const specificArticle = await axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article/${articleId}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/article/${articleId}`,
   })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      return res.data.article;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    })
+    .then((res) => res.data.article)
     .finally(() => {
       loadingSpecificArticleId.value = loadingSpecificArticleId.value.filter((id) => id !== articleId);
     });
@@ -224,9 +186,7 @@ async function openEditArticleModal(targetArticle) {
 
   $vfm.show({
     component: ArticleModal,
-    bind: {
-      article: { ...fullTargetArticle },
-    },
+    bind: { article: { ...fullTargetArticle } },
     on: {
       confirm(modalData) {
         const newArticle = {
@@ -237,29 +197,18 @@ async function openEditArticleModal(targetArticle) {
         editArticle(newArticle);
       },
     },
-    slots: {
-      title: '編輯文章',
-    },
+    slots: { title: '編輯文章' },
   });
 }
 
 // Remotely delete article by given id
 function deleteArticle(articleId) {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/article/${articleId}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderArticles();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/article/${articleId}`,
+  }).then(() => {
+    renderArticles();
+  });
 }
 
 function openDeleteArticleModal(targetArticle) {
@@ -273,12 +222,10 @@ function openDeleteArticleModal(targetArticle) {
         deleteArticle(targetArticle.id);
       },
     },
-    slots: {
-      title: '刪除文章',
-    },
+    slots: { title: '刪除文章' },
   });
 }
 
-// Init
+// Init Render
 renderArticles();
 </script>

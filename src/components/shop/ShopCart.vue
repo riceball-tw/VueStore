@@ -88,14 +88,14 @@
 </template>
 
 <script setup>
+import { ref, inject } from 'vue';
 import CheckOutStep from '@/components/ShopCheckoutStep.vue';
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
 import { $vfm } from 'vue-final-modal';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
-import getAuthToken from '@/helper/getAuthToken';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const router = useRouter();
 
@@ -107,38 +107,25 @@ const loadingCart = ref([]);
 
 // Remotely get carts, then render them
 async function renderCarts() {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      cartsData.value = res.data.data;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/cart`,
+  }).then((res) => {
+    cartsData.value = res.data.data;
+  });
 }
 
 function editCart(cartId, quantity = 1) {
   loadingCart.value = [...loadingCart.value, cartId];
-  axios({
+  axiosWithAuth({
     method: 'put',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart/${cartId}`,
-    headers: { Authorization: getAuthToken() },
+    url: `/cart/${cartId}`,
     data: {
       data: { product_id: 'cartId', qty: quantity },
     },
   })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-
-      useToast().success(`${res.data.message}`);
+    .then(() => {
       renderCarts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
     })
     .finally(() => {
       loadingCart.value = loadingCart.value.filter((cart) => cart !== cartId);
@@ -154,18 +141,12 @@ function handleEditCart(cartId, newQuantity = 1) {
 }
 
 function deleteCart(cartId) {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart/${cartId}`,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCarts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/cart/${cartId}`,
+  }).then(() => {
+    renderCarts();
+  });
 }
 
 function handleDeleteCart(targetCart) {
@@ -179,46 +160,32 @@ function handleDeleteCart(targetCart) {
         deleteCart(targetCart.id);
       },
     },
-    slots: {
-      title: '刪除產品',
-    },
+    slots: { title: '刪除產品' },
   });
 }
 
 function deleteAllCart() {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/carts`,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCarts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/carts`,
+  }).then((res) => {
+    renderCarts();
+  });
 }
 
 async function submitCoupon(targetForm) {
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/coupon`,
+    url: `/coupon`,
     data: {
       data: {
         code: targetForm.couponCode.value,
       },
     },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCarts();
-      targetForm.reset();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    renderCarts();
+    targetForm.reset();
+  });
 }
 
 renderCarts();

@@ -56,34 +56,28 @@
 </template>
 
 <script setup>
+import { ref, inject } from 'vue';
 import { $vfm } from 'vue-final-modal';
 import CouponModal from '@/components/modal/CouponModal.vue';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
-import getAuthToken from '@/helper/getAuthToken';
 import Pagination from '@/components/AppPagination.vue';
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-import { ref } from 'vue';
 
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
+
+// UI Data
 const coupons = ref([]);
 const pagination = ref({});
 
+// Remotely get coupons by given page number, then render them
 function renderCoupons(page = 1) {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupons/?page=${page}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      coupons.value = res.data.coupons;
-      pagination.value = res.data.pagination;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/coupons/?page=${page}`,
+  }).then((res) => {
+    coupons.value = res.data.coupons;
+    pagination.value = res.data.pagination;
+  });
 }
 
 // Re-render target page provided by pagination component
@@ -92,23 +86,13 @@ function paginationChange(page) {
 }
 
 function addCoupon(newCoupon) {
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/coupon`,
     data: newCoupon,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCoupons();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
+  }).then(() => {
+    renderCoupons();
+  });
 }
 
 function openAddCouponModal() {
@@ -125,30 +109,18 @@ function openAddCouponModal() {
         addCoupon(newCoupon);
       },
     },
-    slots: {
-      title: '新增優惠券',
-    },
+    slots: { title: '新增優惠券' },
   });
 }
 
 function editCoupon(targetCoupon) {
-  axios({
+  axiosWithAuth({
     method: 'put',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon/${targetCoupon.id}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/coupon/${targetCoupon.id}`,
     data: targetCoupon,
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCoupons();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
+  }).then(() => {
+    renderCoupons();
+  });
 }
 
 function openEditCouponModal(targetCoupon) {
@@ -168,45 +140,29 @@ function openEditCouponModal(targetCoupon) {
         editCoupon(newCoupon);
       },
     },
-    slots: {
-      title: '編輯優惠券',
-    },
+    slots: { title: '編輯優惠券' },
   });
 }
 
 function deleteCoupon(targetCouponId) {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/coupon/${targetCouponId}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderCoupons();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
+    url: `/admin/coupon/${targetCouponId}`,
+  }).then(() => {
+    renderCoupons();
+  });
 }
 
 function openDeleteCouponModal(targetCoupon) {
   $vfm.show({
     component: DashboardDeleteModal,
-    bind: {
-      dashboardItem: { ...targetCoupon },
-    },
+    bind: { dashboardItem: { ...targetCoupon } },
     on: {
       confirm() {
         deleteCoupon(targetCoupon.id);
       },
     },
-    slots: {
-      title: '刪除優惠券',
-    },
+    slots: { title: '刪除優惠券' },
   });
 }
 

@@ -61,14 +61,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
+import { ref, inject } from 'vue';
 import { $vfm } from 'vue-final-modal';
 import ProductModal from '@/components/modal/ProductModal.vue';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
 import Pagination from '@/components/AppPagination.vue';
-import getAuthToken from '@/helper/getAuthToken';
-import axios from 'axios';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 // UI Data
 const products = ref([]);
@@ -76,19 +76,13 @@ const pagination = ref({});
 
 // Remotely get products by given page number, then render them
 async function renderProducts(page = 1) {
-  axios({
+  axiosWithAuth({
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      products.value = res.data.products;
-      pagination.value = res.data.pagination;
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then((res) => {
+    products.value = res.data.products;
+    pagination.value = res.data.pagination;
+  });
 }
 
 // Re-render target page provided by pagination component
@@ -98,25 +92,15 @@ function paginationChange(page) {
 
 // Remotely create product from input data
 function addProduct(targetProduct) {
-  axios({
+  axiosWithAuth({
     method: 'post',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
     data: {
       ...targetProduct,
     },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderProducts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-      return err;
-    });
+  }).then(() => {
+    renderProducts();
+  });
 }
 
 function openAddProductModal() {
@@ -132,30 +116,19 @@ function openAddProductModal() {
         addProduct(newProduct);
       },
     },
-    slots: {
-      title: '新增產品',
-    },
+    slots: { title: '新增產品' },
   });
 }
 
 // Remotely edit product from input data
 function editProduct(targetProduct) {
-  axios({
+  axiosWithAuth({
     method: 'put',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${targetProduct.data.id}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
+    url: `/admin/product/${targetProduct.data.id}`,
     data: { ...targetProduct },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderProducts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+  }).then(() => {
+    renderProducts();
+  });
 }
 
 function openEditProductModal(targetProduct) {
@@ -174,29 +147,18 @@ function openEditProductModal(targetProduct) {
         editProduct(newProduct);
       },
     },
-    slots: {
-      title: '編輯產品',
-    },
+    slots: { title: '編輯產品' },
   });
 }
 
 // Remotely delete poduct by given id
 function deleteProduct(productId) {
-  axios({
+  axiosWithAuth({
     method: 'delete',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/product/${productId}`,
-    headers: {
-      Authorization: getAuthToken(),
-    },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-      renderProducts();
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/admin/product/${productId}`,
+  }).then(() => {
+    renderProducts();
+  });
 }
 
 function openDeleteProductModal(targetProduct) {
@@ -210,11 +172,10 @@ function openDeleteProductModal(targetProduct) {
         deleteProduct(targetProduct.id);
       },
     },
-    slots: {
-      title: '刪除產品',
-    },
+    slots: { title: '刪除產品' },
   });
 }
 
-await renderProducts();
+// Init Render
+renderProducts();
 </script>

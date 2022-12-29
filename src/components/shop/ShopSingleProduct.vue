@@ -9,10 +9,10 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import getAuthToken from '@/helper/getAuthToken';
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
+
+// Import
+const axiosWithAuth = inject('axiosWithAuth');
 
 const { productId } = useRoute().params;
 const product = ref({});
@@ -20,38 +20,22 @@ const loadingProduct = ref('');
 
 function addToCart(quantity = 1) {
   loadingProduct.value = productId;
-  axios({
+  axiosWithAuth({
     method: 'post',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/cart`,
-    headers: { Authorization: getAuthToken() },
+    url: `/cart`,
     data: { data: { product_id: productId, qty: quantity } },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      useToast().success(`${res.data.message}`);
-    })
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    })
-    .finally(() => {
-      loadingProduct.value = '';
-    });
+  }).finally(() => {
+    loadingProduct.value = '';
+  });
 }
 
 async function renderProducts() {
-  axios({
+  axiosWithAuth({
     method: 'get',
-    url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/product/${productId}`,
-    headers: { Authorization: getAuthToken() },
-  })
-    .then((res) => {
-      if (!res.data.success) throw new Error(`${res.data.message}`);
-      product.value = res.data.product;
-    })
-
-    .catch((err) => {
-      useToast().error(`${err.message}`);
-    });
+    url: `/product/${productId}`,
+  }).then((res) => {
+    product.value = res.data.product;
+  });
 }
 
 renderProducts();
