@@ -23,6 +23,8 @@
 ## 使用技術與文件
 
 - [Vite](https://vitejs.dev/) - 以 Vue.js 開發 SPA 網站
+- [Tailwind](https://tailwindcss.com/) - Utility CSS Framework
+- [Tailwind Typography](https://tailwindcss.com/docs/typography-plugin) - 文章版面與樣式
 - [Daisy UI](https://daisyui.com/) - 架構基礎 UI
 - [ESlint(Airbnb)](https://eslint.org/)、[Prettier](https://prettier.io/) - 優化與統一代碼風格
 - [CKEditor 5](https://ckeditor.com/ckeditor-5/) - 文章編輯器
