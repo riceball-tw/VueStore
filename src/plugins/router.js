@@ -23,6 +23,7 @@ function routerWrapper(app) {
           { path: '/cartInfo', name: 'cartInfo', component: () => import('@/views/shop/ShopCartInfo.vue') },
           { path: '/checkout/:orderId', name: 'checkout', component: () => import('@/views/shop/ShopCheckout.vue') },
           { path: '/blog', name: 'blog', component: () => import('@/views/shop/ShopBlog.vue') },
+          { path: '/article/:articleId', name: 'article', component: () => import('@/views/shop/ShopArticle.vue') },
           { path: '/contact', name: 'contact', component: () => import('@/views/shop/ShopContact.vue') },
         ],
       },
