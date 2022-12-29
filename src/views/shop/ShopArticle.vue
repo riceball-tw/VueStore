@@ -1,6 +1,13 @@
 <template>
   <div class="container mx-auto">
-    {{ article }}
+    <!-- {{ article }} -->
+    <img class="mx-auto mb-8" :src="article.image" :alt="article.title" />
+    <div class="prose max-w-none text-center">
+      <h1>
+        {{ article.title }}
+      </h1>
+      <div v-html="article.content"></div>
+    </div>
   </div>
 </template>
 
