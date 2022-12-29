@@ -25,12 +25,13 @@
 - [Vite](https://vitejs.dev/) - 以 Vue.js 開發 SPA 網站
 - [Daisy UI](https://daisyui.com/) - 架構基礎 UI
 - [ESlint(Airbnb)](https://eslint.org/)、[Prettier](https://prettier.io/) - 優化與統一代碼風格
+- [CKEditor 5](https://ckeditor.com/ckeditor-5/) - 文章編輯器
 - [Vue Router](https://router.vuejs.org/) - SPA 網站路由設置
 - [Vue Toastification](https://vue-toastification.maronato.dev/) - 吐司彈跳框套件
 - [Vue Final Modal](https://vue-final-modal.org/) - 彈跳框套件
-- [CKEditor 5](https://ckeditor.com/ckeditor-5/) - 文章編輯器
 - [Vue Tags Input](http://www.vue-tags-input.com/#/) - 標籤
 - [Vue Loading Overlay Component](https://github.com/ankurk91/vue-loading-overlay) - 讀取效果
+- [Vue Axios](https://github.com/imcvampire/vue-axios) - Axios Vue
 
 ## 參考資料
 
