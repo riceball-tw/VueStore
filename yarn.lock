@@ -2252,6 +2252,11 @@ vue-final-modal@3:
   resolved "https://registry.yarnpkg.com/vue-final-modal/-/vue-final-modal-3.4.11.tgz#5a7cb31fad5bff0f51e4db167ae9309f404f20a1"
   integrity sha512-tKBM4hcUo16rUGa/UaYMlut11cRfxMZnahz9u+mAoSk8mQNdnm9FHzOeHIcUxNHvMC/YyVBlOHi+2GqOVO8zig==
 
+vue-loading-overlay@6.0:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/vue-loading-overlay/-/vue-loading-overlay-6.0.2.tgz#69c844067d4344f72474f87f68020eb066763203"
+  integrity sha512-5GCvv6hPjNfHg+tKnLkk6yO/b/AdCCkdZb2dfrVFOuDyJz38dbm34k6oohVy/xIoFzPGsEEVtwCxq5G3RIYZ1Q==
+
 vue-router@4:
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.1.6.tgz#b70303737e12b4814578d21d68d21618469375a1"
@@ -2263,6 +2268,11 @@ vue-toastification@^2.0.0-rc.5:
   version "2.0.0-rc.5"
   resolved "https://registry.yarnpkg.com/vue-toastification/-/vue-toastification-2.0.0-rc.5.tgz#92798604d806ae473cfb76ed776fae294280f8f8"
   integrity sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==
+
+vue3-loading-overlay@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/vue3-loading-overlay/-/vue3-loading-overlay-0.0.0.tgz#b5c726b51114019c1771479f7558af1fb1e73f6e"
+  integrity sha512-Ly/sOMF+YTPDlVSsL4D8dTasT9A/PW+JlhFaY+sabOJXpafedxD1ADZbpT89XaM2QavRzfmq4s0nhcbr5I7BRQ==
 
 vue@^3.0.0-beta.1, vue@^3.2.41:
   version "3.2.45"

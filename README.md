@@ -30,6 +30,7 @@
 - [Vue Final Modal](https://vue-final-modal.org/) - 彈跳框套件
 - [CKEditor 5](https://ckeditor.com/ckeditor-5/) - 文章編輯器
 - [Vue Tags Input](http://www.vue-tags-input.com/#/) - 標籤
+- [Vue Loading Overlay Component](https://github.com/ankurk91/vue-loading-overlay) - 讀取效果
 
 ## 參考資料
 
