@@ -18,9 +18,11 @@ app.config.globalProperties.$unitFilters = {
   toUnixTimestamp,
 };
 app
-  .use(router)
   // https://www.npmjs.com/package/vue-loading-overlay
   .use(LoadingPlugin, { backgroundColor: '#000' }, { default: h(LoaderIcon) })
+  .use(router)
   .use(vfmPlugin)
   .use(Toast)
   .mount('#app');
+
+export default app;

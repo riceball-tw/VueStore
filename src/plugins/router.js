@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import getAuthToken from '@/helper/getAuthToken';
+import app from '@/main.js';
 
 const router = createRouter({
   routes: [
@@ -62,7 +63,9 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
+  const loader = app.config.globalProperties.$loading.show();
   if (!to.meta.needsAuth) {
+    loader.hide();
     return true;
   }
   return axios({
@@ -73,6 +76,7 @@ router.beforeEach(async (to) => {
     .then((res) => {
       if (!res.data.success) throw new Error(`${res.data.message}`);
       useToast().success(`通過登入驗證，為您跳轉至 ${to.name} 頁面`);
+      loader.hide();
       return true;
     })
     .catch((err) => {
