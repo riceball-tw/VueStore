@@ -3,6 +3,7 @@
     <table class="table table-zebra w-full">
       <thead>
         <tr>
+          <th>我的最愛</th>
           <th>產品圖片</th>
           <th>產品名稱</th>
           <th>產品價格</th>
@@ -12,6 +13,10 @@
       </thead>
       <tbody>
         <tr v-for="product in products" :key="product.id">
+          <td>
+            <span v-if="favoriteProducts.includes(product.id)">是</span>
+            <span v-else>否</span>
+          </td>
           <td>
             <img width="300" :src="product.imageUrl" :alt="product.title" />
           </td>
@@ -30,6 +35,16 @@
                 <div v-if="loadingProduct.includes(product.id)">Loading...</div>
                 加到購物車
               </button>
+              <button
+                class="btn btn-outline"
+                @click="
+                  () => {
+                    handleToggleFavoriteProduct(product.id, product.title);
+                  }
+                "
+              >
+                加到我的最愛
+              </button>
             </div>
           </td>
         </tr>
@@ -43,6 +58,7 @@
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import Pagination from '@/components/AppPagination.vue';
+import { getFavoriteProducts, toggleFavoriteProduct } from '@/helper/handleFavoriteProduct';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
@@ -53,6 +69,7 @@ const pagination = ref({});
 
 // Other State
 const loadingProduct = ref([]);
+const favoriteProducts = ref(getFavoriteProducts());
 const router = useRouter();
 
 // Check single product
@@ -86,6 +103,11 @@ async function renderProducts(page = 1) {
 // Re-render target page provided by pagination component
 function handlePaginationChange(page) {
   renderProducts(page);
+}
+
+function handleToggleFavoriteProduct(targetId, targetName) {
+  toggleFavoriteProduct(targetId, targetName);
+  favoriteProducts.value = getFavoriteProducts();
 }
 
 // Init

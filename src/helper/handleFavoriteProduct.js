@@ -4,7 +4,7 @@ function setFavoriteProduct(id) {
   localStorage.setItem('favoriteProduct', JSON.stringify(id));
 }
 
-function getFavoriteProducts() {
+export function getFavoriteProducts() {
   return JSON.parse(localStorage.getItem('favoriteProduct')) ?? [];
 }
 
