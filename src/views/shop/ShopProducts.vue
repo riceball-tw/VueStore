@@ -110,6 +110,12 @@ function handleToggleFavoriteProduct(targetId, targetName) {
   favoriteProducts.value = getFavoriteProducts();
 }
 
+// When FavoriteProducts update...
+window.addEventListener('storeProducts', () => {
+  favoriteProducts.value = getFavoriteProducts();
+  renderProducts();
+});
+
 // Init
 renderProducts();
 </script>
