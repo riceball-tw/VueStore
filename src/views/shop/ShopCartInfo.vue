@@ -102,12 +102,10 @@
 
 <script setup>
 import { inject } from 'vue';
-import CheckOutStep from '@/components/ShopCheckoutStep.vue';
 import { useRouter } from 'vue-router';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
-
 const router = useRouter();
 
 function createOrder(orderData) {
