@@ -73,14 +73,14 @@ function routerWrapper(app) {
     })
       .then((res) => {
         if (!res.data.success) throw new Error(`${res.data.message}`);
-        useToast().success(`通過登入驗證，為您跳轉至 ${to.name} 頁面`);
-        loader.hide();
         return true;
       })
-      .catch((err) => {
-        useToast().error(`${err.message}`);
+      .catch(() => {
         router.push({ name: 'login' });
         return false;
+      })
+      .finally(() => {
+        loader.hide();
       });
   });
 
