@@ -23,7 +23,7 @@ app.config.globalProperties.$unitFilters = {
 
 app
   // https://www.npmjs.com/package/vue-loading-overlay
-  .use(LoadingPlugin, { backgroundColor: '#000' }, { default: h(LoaderIcon) })
+  .use(LoadingPlugin, { backgroundColor: '#000' }, { default: () => h(LoaderIcon, null, { default: () => 'loader' }) })
   .use(vfmPlugin)
   .use(VueAxios, axiosConfig)
   .provide('axios', app.config.globalProperties.axios)
