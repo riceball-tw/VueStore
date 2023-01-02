@@ -1,4 +1,5 @@
 <template>
+  <Hero title="所有產品" description="一些關於這個商店的描述的描述可撰寫於此" />
   <div class="container mx-auto flex flex-col gap-8">
     <div class="flex flex-col md:flex-row gap-8 mt-8">
       <!-- Products Sidebar -->
@@ -110,8 +111,9 @@
 
 <script setup>
 import { ref, inject, watch } from 'vue';
-import Pagination from '@/components/AppPagination.vue';
 import { getFavoriteProducts, toggleFavoriteProduct } from '@/helper/handleFavoriteProduct';
+import Pagination from '@/components/AppPagination.vue';
+import Hero from '@/components/AppHero.vue';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
