@@ -1,11 +1,10 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Import
 const axiosWithAuth = inject('axiosWithAuth');
-
 const router = useRouter();
+const loginForm = ref(null);
 
 async function loginSubmit(form) {
   const userInfo = {
@@ -18,6 +17,10 @@ async function loginSubmit(form) {
     url: `${import.meta.env.VITE_APP_API}/admin/signin`,
     data: userInfo,
   }).then((res) => {
+    if (!res.data.success) {
+      loginForm.value.reset();
+      return;
+    }
     document.cookie = `hexToken=${res.data.token}; expires=${new Date(res.data.expired)}`;
     router.push({ name: 'dashboardHome' });
   });
@@ -31,6 +34,7 @@ async function loginSubmit(form) {
         <h2 class="card-title">登入後台</h2>
         <form
           id="loginForm"
+          ref="loginForm"
           class="mb-8"
           @submit.prevent="
             (e) => {
