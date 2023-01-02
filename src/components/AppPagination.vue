@@ -1,6 +1,10 @@
 <template>
-  <nav v-if="pages.total_pages && pages.total_pages !== 1" aria-label="Page Navigation">
-    <div class="btn-group mt-8">
+  <nav
+    v-if="pages.total_pages && pages.total_pages !== 1"
+    class="flex justify-center items-center py-8"
+    aria-label="Page Navigation"
+  >
+    <div class="btn-group">
       <button class="btn" href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
         <span aria-hidden="true">&laquo;</span>
       </button>
