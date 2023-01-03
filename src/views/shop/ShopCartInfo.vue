@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto my-8">
     <div class="flex justify-center">
-      <CheckoutStep current-step="2" />
+      <CheckoutStep :current-step="2" />
     </div>
 
     <div class="flex gap-4 justify-center flex-row-reverse my-8">

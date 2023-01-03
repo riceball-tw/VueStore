@@ -33,7 +33,7 @@ const stepsData = [
   },
   {
     title: '確認訂單資料並付款',
-    link: 'checkout',
+    link: 'cartInfo',
   },
 ];
 </script>

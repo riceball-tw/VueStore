@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto">
-    <CheckoutStep current-step="1" />
+    <CheckoutStep :current-step="1" />
     <div v-if="!cartsData?.carts?.length">目前購物車內無商品</div>
     <!-- Section Title -->
     <div class="flex justify-between w-full mb-8 px-4">
