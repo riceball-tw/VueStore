@@ -1,3 +1,5 @@
+![Logo Hero Image](https://i.imgur.com/ITlNhtx.jpg)
+
 # 電商網站
 
 後端與 API 來源自《[六角學院 Vue 3 實戰影音課程](https://www.hexschool.com/courses/vue3.html)》，於本專案中整合 API 並建構基礎的前後台 UI 供購買者、管理員操作使用。
