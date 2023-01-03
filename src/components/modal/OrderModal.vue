@@ -31,7 +31,7 @@
         <!-- User name -->
         <div class="form-control w-full">
           <label for="userName" class="label">
-            <span class="label-text">名稱</span>
+            <span class="label-text">聯絡人</span>
           </label>
           <input
             id="userName"
@@ -83,6 +83,7 @@
               id="total"
               v-model.number="tempOrder.total"
               class="input input-bordered w-full"
+              min="0"
               type="number"
               placeholder="請輸入應付金額……"
               required
