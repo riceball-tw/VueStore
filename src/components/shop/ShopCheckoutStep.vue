@@ -1,14 +1,16 @@
 <template>
-  <div class="steps">
-    <router-link
-      v-for="(step, index) in stepsData"
-      :key="step.title"
-      class="step"
-      :class="{ 'step-primary': index < props.currentStep }"
-      :to="step.link"
-    >
-      {{ step.title }}
-    </router-link>
+  <div class="w-full flex justify-center px-4">
+    <div class="steps">
+      <router-link
+        v-for="(step, index) in stepsData"
+        :key="step.title"
+        class="step"
+        :class="{ 'step-primary': index < props.currentStep }"
+        :to="step.link"
+      >
+        {{ step.title }}
+      </router-link>
+    </div>
   </div>
 </template>
 
