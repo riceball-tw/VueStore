@@ -69,6 +69,7 @@ import Pagination from '@/components/AppPagination.vue';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
+const $loading = inject('$loading');
 
 // UI Data
 const products = ref([]);
@@ -76,13 +77,18 @@ const pagination = ref({});
 
 // Remotely get products by given page number, then render them
 async function renderProducts(page = 1) {
+  const loader = $loading.show();
   axiosWithAuth({
     method: 'get',
     url: `${import.meta.env.VITE_APP_API}/api/${import.meta.env.VITE_APP_PATH}/admin/products/?page=${page}`,
-  }).then((res) => {
-    products.value = res.data.products;
-    pagination.value = res.data.pagination;
-  });
+  })
+    .then((res) => {
+      products.value = res.data.products;
+      pagination.value = res.data.pagination;
+    })
+    .finally(() => {
+      loader.hide();
+    });
 }
 
 // Re-render target page provided by pagination component

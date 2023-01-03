@@ -68,6 +68,7 @@ import OrderModal from '@/components/modal/OrderModal.vue';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
+const $loading = inject('$loading');
 
 // UI Data
 const orders = ref([]);
@@ -75,13 +76,18 @@ const pagination = ref({});
 
 // Remotely get orders by given page number, then render them
 function renderOrders(page = 1) {
+  const loader = $loading.show();
   axiosWithAuth({
     method: 'get',
     url: `/admin/orders?page=${page}`,
-  }).then((res) => {
-    orders.value = res.data.orders;
-    pagination.value = res.data.pagination;
-  });
+  })
+    .then((res) => {
+      orders.value = res.data.orders;
+      pagination.value = res.data.pagination;
+    })
+    .finally(() => {
+      loader.hide();
+    });
 }
 
 // Remotely delete coupon by given id

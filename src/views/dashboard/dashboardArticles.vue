@@ -101,6 +101,7 @@ import Pagination from '@/components/AppPagination.vue';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
+const $loading = inject('$loading');
 
 // UI Data
 const articles = ref([]);
@@ -111,13 +112,18 @@ const loadingSpecificArticleId = ref([]);
 
 // Remotely get articles by given page number, then render them
 function renderArticles(page = 1) {
+  const loader = $loading.show();
   axiosWithAuth({
     method: 'get',
     url: `admin/articles/?page=${page}`,
-  }).then((res) => {
-    articles.value = res.data.articles;
-    pagination.value = res.data.pagination;
-  });
+  })
+    .then((res) => {
+      articles.value = res.data.articles;
+      pagination.value = res.data.pagination;
+    })
+    .finally(() => {
+      loader.hide();
+    });
 }
 
 // Re-render target page provided by pagination component

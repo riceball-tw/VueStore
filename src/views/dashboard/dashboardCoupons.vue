@@ -64,6 +64,7 @@ import Pagination from '@/components/AppPagination.vue';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
+const $loading = inject('$loading');
 
 // UI Data
 const coupons = ref([]);
@@ -71,13 +72,18 @@ const pagination = ref({});
 
 // Remotely get coupons by given page number, then render them
 function renderCoupons(page = 1) {
+  const loader = $loading.show();
   axiosWithAuth({
     method: 'get',
     url: `/admin/coupons/?page=${page}`,
-  }).then((res) => {
-    coupons.value = res.data.coupons;
-    pagination.value = res.data.pagination;
-  });
+  })
+    .then((res) => {
+      coupons.value = res.data.coupons;
+      pagination.value = res.data.pagination;
+    })
+    .finally(() => {
+      loader.hide();
+    });
 }
 
 // Re-render target page provided by pagination component
