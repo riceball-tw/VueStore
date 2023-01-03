@@ -58,35 +58,19 @@
             />
           </div>
 
-          <div class="flex gap-4 flex-wrap md:flex-nowrap">
-            <!-- create_at -->
-            <div class="form-control w-full">
-              <label for="createAt" class="label">
-                <span class="label-text">創建日期</span>
-              </label>
-              <input
-                id="createAt"
-                v-model="tempArticle.create_at"
-                type="date"
-                class="input input-bordered w-full"
-                placeholder="請輸入優惠券到期日……"
-                required
-              />
-            </div>
-
-            <!-- Image -->
-            <div class="form-control w-full">
-              <label for="image" class="label">
-                <span class="label-text">圖片</span>
-              </label>
-              <input
-                id="image"
-                v-model="tempArticle.image"
-                class="input input-bordered w-full"
-                type="text"
-                placeholder="請輸入文章圖片……"
-              />
-            </div>
+          <!-- create_at -->
+          <div class="form-control w-full">
+            <label for="createAt" class="label">
+              <span class="label-text">創建日期</span>
+            </label>
+            <input
+              id="createAt"
+              v-model="tempArticle.create_at"
+              type="date"
+              class="input input-bordered w-full"
+              placeholder="請輸入優惠券到期日……"
+              required
+            />
           </div>
 
           <!-- Description -->
@@ -118,6 +102,76 @@
           </div>
         </div>
         <div>
+          <!-- Image Input -->
+          <div class="max-w-[500px]">
+            <img v-if="tempArticle.image" :src="tempArticle.image" />
+            <label
+              v-else
+              for="imageUpload"
+              class="text-sm flex flex-col items-center justify-center p-8 bg-base-300 rounded-lg cursor-pointer"
+            >
+              <svg class="mb-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="48" width="48">
+                <path
+                  d="M9 42q-1.2 0-2.1-.9Q6 40.2 6 39V9q0-1.2.9-2.1Q7.8 6 9 6h30q1.2 0 2.1.9.9.9.9 2.1v30q0 1.2-.9 2.1-.9.9-2.1.9Zm0-3h30V9H9v30Zm2.8-4.85h24.45l-7.35-9.8-6.6 8.55-4.65-6.35ZM9 39V9v30Z"
+                />
+              </svg>
+
+              <span class="tracking-widest">
+                <span v-if="!isUploadingImage">請上傳首頁圖片</span>
+                <span v-else>圖片上傳中……</span>
+              </span>
+            </label>
+
+            <!-- Image Url -->
+            <div class="form-control w-full">
+              <label for="image" class="label">
+                <span class="label-text">圖片連結</span>
+              </label>
+
+              <div class="flex gap-2">
+                <input
+                  id="image"
+                  v-model="tempArticle.image"
+                  :disabled="isUploadingImage"
+                  class="input input-bordered w-full"
+                  type="text"
+                  placeholder="請輸入圖片連結……"
+                />
+                <button
+                  v-if="tempArticle.image"
+                  type="button"
+                  class="btn btn-outline btn-square"
+                  @click="
+                    () => {
+                      tempArticle.image = '';
+                    }
+                  "
+                >
+                  <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+                    <path
+                      d="M6.4 19 5 17.6l5.6-5.6L5 6.4 6.4 5l5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6Z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-control w-full hidden">
+              <input
+                id="imageUpload"
+                name="imageFile"
+                class="file-input input-bordered w-full"
+                type="file"
+                @change="
+                  (e) => {
+                    uploadImageFile(e.target.files[0]);
+                  }
+                "
+              />
+            </div>
+          </div>
+
           <label for="content" class="label">
             <span class="label-text">說明內容</span>
           </label>
@@ -144,7 +198,6 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 const axiosWithAuth = inject('axiosWithAuth');
 
 const editorComponent = ref(null);
-
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   article: {
@@ -156,12 +209,30 @@ const props = defineProps({
 });
 
 const tempArticle = ref({});
+const isUploadingImage = ref(false);
 tempArticle.value = { ...props.article };
 
 const tag = ref('');
 
 if (!tempArticle.value.isPublic) {
   tempArticle.value.isPublic = false;
+}
+
+function uploadImageFile(imageFile) {
+  const imageFormData = new FormData();
+  imageFormData.append('file-to-upload', imageFile);
+  isUploadingImage.value = true;
+  axiosWithAuth({
+    method: 'post',
+    url: `/admin/upload`,
+    data: imageFormData,
+  })
+    .then((res) => {
+      tempArticle.value.image = res.data.imageUrl;
+    })
+    .finally(() => {
+      isUploadingImage.value = false;
+    });
 }
 
 function modalSubmit() {
@@ -202,8 +273,8 @@ onMounted(() => {
         url: `/admin/upload`,
         data,
       }).then((res) => {
-        this.loader.imageUrl = res.data.imageUrl;
-        resolve({ default: res.data.imageUrl });
+        this.loader.image = res.data.image;
+        resolve({ default: res.data.image });
       });
     }
   }

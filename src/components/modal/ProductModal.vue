@@ -28,7 +28,10 @@
               />
             </svg>
 
-            <span class="tracking-widest">請上傳首頁圖片</span>
+            <span class="tracking-widest">
+              <span v-if="!isUploadingImage">請上傳首頁圖片</span>
+              <span v-else>圖片上傳中……</span>
+            </span>
           </label>
 
           <!-- Image Url -->
@@ -41,6 +44,7 @@
               <input
                 id="imageUrl"
                 v-model="tempProduct.imageUrl"
+                :disabled="isUploadingImage"
                 class="input input-bordered w-full"
                 type="text"
                 placeholder="請輸入圖片連結……"
@@ -91,7 +95,10 @@
                   d="M9 42q-1.2 0-2.1-.9Q6 40.2 6 39V9q0-1.2.9-2.1Q7.8 6 9 6h30q1.2 0 2.1.9.9.9.9 2.1v30q0 1.2-.9 2.1-.9.9-2.1.9Zm0-3h30V9H9v30Zm2.8-4.85h24.45l-7.35-9.8-6.6 8.55-4.65-6.35ZM9 39V9v30Z"
                 />
               </svg>
-              <span class="tracking-widest">請上傳產品圖片</span>
+              <span class="tracking-widest">
+                <span v-if="!isUploadingMutiImage.includes(index)">請上傳首頁圖片</span>
+                <span v-else>圖片上傳中……</span>
+              </span>
             </label>
             <!-- Image Url -->
             <div class="form-control w-full">
@@ -104,6 +111,7 @@
                   v-model="tempProduct.imagesUrl[index]"
                   class="input input-bordered w-full"
                   type="text"
+                  :disabled="isUploadingMutiImage.includes(index)"
                   placeholder="請輸入圖片連結……"
                 />
                 <button
@@ -337,6 +345,9 @@ const props = defineProps({
 
 const tempProduct = ref({});
 tempProduct.value = { ...props.product };
+const isUploadingImage = ref(false);
+const isUploadingMutiImage = ref([]);
+
 const isFilledLastImage = computed(() => {
   if (!tempProduct.value.imagesUrl) {
     return true;
@@ -383,27 +394,36 @@ function handleAddMultiImage() {
 function uploadImageFile(imageFile) {
   const imageFormData = new FormData();
   imageFormData.append('file-to-upload', imageFile);
-
+  isUploadingImage.value = true;
   axiosWithAuth({
     method: 'post',
     url: `/admin/upload`,
     data: imageFormData,
-  }).then((res) => {
-    tempProduct.value.imageUrl = res.data.imageUrl;
-  });
+  })
+    .then((res) => {
+      tempProduct.value.imageUrl = res.data.imageUrl;
+    })
+    .finally(() => {
+      isUploadingImage.value = false;
+    });
 }
 
 function uploadMultipleImageFile(imageFile, updateIndex) {
   const imageFormData = new FormData();
   imageFormData.append('file-to-upload', imageFile);
-
+  isUploadingMutiImage.value.push(updateIndex);
+  console.log(updateIndex);
   axiosWithAuth({
     method: 'post',
     url: `/admin/upload`,
     data: imageFormData,
-  }).then((res) => {
-    tempProduct.value.imagesUrl[updateIndex] = res.data.imageUrl;
-  });
+  })
+    .then((res) => {
+      tempProduct.value.imagesUrl[updateIndex] = res.data.imageUrl;
+    })
+    .finally(() => {
+      isUploadingMutiImage.value = isUploadingMutiImage.value.filter((imageIndex) => imageIndex !== updateIndex);
+    });
 }
 </script>
 
