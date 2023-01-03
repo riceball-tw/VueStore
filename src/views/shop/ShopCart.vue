@@ -14,7 +14,7 @@
         >
           清空購物車
         </button>
-        <button class="btn btn-success" type="button" @click="checkoutCart()">結帳</button>
+        <button class="btn btn-success" type="button" @click="checkoutCart()">填寫資料</button>
       </div>
     </div>
 
@@ -79,7 +79,7 @@
             <tr class="text-right">
               <td colspan="5" class="text-2xl">
                 <div v-if="isUsingDiscount">
-                  <del class="opacity-60 font-normal">總計： {{ cartsData.total }} $NTD</del>
+                  <del class="opacity-60 font-normal text-xl">總計： {{ cartsData.total }} $NTD</del>
                   <div>折扣後價格： {{ cartsData.final_total }} $NTD</div>
                 </div>
                 <div v-else>總計： {{ cartsData.total }} $NTD</div>
