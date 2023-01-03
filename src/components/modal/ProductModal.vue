@@ -15,7 +15,7 @@
         "
       >
         <!-- Image Sidebar -->
-        <div class="flex gap-4 flex-col">
+        <div class="flex gap-4 flex-col max-w-[300px]">
           <img v-if="tempProduct.imageUrl" :src="tempProduct.imageUrl" />
           <label
             v-else
@@ -79,7 +79,7 @@
 
           <hr class="divider border-none" />
 
-          <template v-for="(image, index) in tempProduct.imagesUrl" :key="index">
+          <template v-for="(image, index) in tempProduct.imagesUrl" :key="`imagesUrl-${index}`">
             <img v-if="tempProduct.imagesUrl[index]" :src="tempProduct.imagesUrl[index]" />
             <label
               v-else
@@ -122,6 +122,23 @@
                     />
                   </svg>
                 </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-square hover:btn-error"
+                  @click="handleDeleteMutiImage(index)"
+                >
+                  <svg
+                    fill="currentColor"
+                    title="Trash Can 垃圾桶"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24"
+                    width="24"
+                  >
+                    <path
+                      d="M7 21q-.825 0-1.412-.587Q5 19.825 5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413Q17.825 21 17 21ZM17 6H7v13h10ZM9 17h2V8H9Zm4 0h2V8h-2ZM7 6v13Z"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -144,7 +161,14 @@
             </div>
           </template>
 
-          <button type="button" class="btn btn-full btn-outline" @click="handleAddMultiImage">新增圖片</button>
+          <button
+            type="button"
+            :disabled="!isFilledLastImage"
+            class="btn btn-full btn-outline"
+            @click="handleAddMultiImage"
+          >
+            新增圖片
+          </button>
         </div>
 
         <!-- Area 02 -->
@@ -291,10 +315,9 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, computed } from 'vue';
 
 const axiosWithAuth = inject('axiosWithAuth');
-
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   product: {
@@ -314,6 +337,17 @@ const props = defineProps({
 
 const tempProduct = ref({});
 tempProduct.value = { ...props.product };
+const isFilledLastImage = computed(() => {
+  if (!tempProduct.value.imagesUrl) {
+    return true;
+  }
+  const lastArrayIndex = tempProduct.value.imagesUrl.length - 1 ?? -1;
+  if (lastArrayIndex === -1) {
+    return true;
+  }
+  const lastArrayItem = tempProduct.value.imagesUrl[lastArrayIndex];
+  return Boolean(lastArrayItem);
+});
 
 function modalSubmit() {
   const newProduct = {
@@ -332,6 +366,10 @@ function modalSubmit() {
     imageUrl: tempProduct.value.imageUrl,
   };
   emit('confirm', newProduct);
+}
+
+function handleDeleteMutiImage(index) {
+  tempProduct.value.imagesUrl.splice(index, 1);
 }
 
 function handleAddMultiImage() {
