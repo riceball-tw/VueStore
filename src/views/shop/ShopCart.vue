@@ -209,7 +209,7 @@ function handleDeleteCart(targetCart) {
   $vfm.show({
     component: DashboardDeleteModal,
     bind: {
-      dashboardItem: { title: targetCart.id },
+      dashboardItem: { title: targetCart.product.title },
     },
     on: {
       confirm() {
