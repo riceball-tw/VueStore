@@ -54,6 +54,7 @@
               v-model="tempCoupon.percent"
               class="input input-bordered w-full"
               type="number"
+              min="1"
               placeholder="請輸入優惠券折扣數……"
               required
             />
@@ -117,7 +118,7 @@ tempCoupon.value = { ...props.coupon };
 function formSubmit() {
   const newCoupon = {
     title: tempCoupon.value.title,
-    is_enabled: tempCoupon.value.is_enabled,
+    is_enabled: tempCoupon.value.is_enabled ?? 0,
     percent: tempCoupon.value.percent,
     due_date: toUnixTimestamp(tempCoupon.value.due_date),
     code: tempCoupon.value.code,
