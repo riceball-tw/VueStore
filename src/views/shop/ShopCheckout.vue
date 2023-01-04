@@ -5,7 +5,10 @@
     <div class="flex justify-between w-full py-8 px-4">
       <h1 class="text-4xl font-bold">確認付款</h1>
       <div class="btn-group">
-        <button :disabled="isPaid" class="btn btn-primary" type="button" @click="payOrder(orderId)">付款</button>
+        <button :disabled="isPaid || isPaying" class="btn btn-primary" type="button" @click="payOrder(orderId)">
+          <span v-if="isPaying">付款中……</span>
+          <span v-else>付款</span>
+        </button>
       </div>
     </div>
 
@@ -89,6 +92,7 @@ const { orderId } = useRoute().params;
 const orderData = ref({});
 
 const isPaid = computed(() => orderData.value?.order?.is_paid);
+const isPaying = ref(false);
 
 function renderOrder() {
   axiosWithAuth({
@@ -100,15 +104,13 @@ function renderOrder() {
 }
 
 function payOrder(targetOrderId) {
+  isPaying.value = true;
   axiosWithAuth({
     method: 'post',
     url: `/pay/${targetOrderId}`,
-  }).then((res) => {
-    if (!res.data.sucess) {
-      throw new Error(res.data.message);
-    } else {
-      renderOrder();
-    }
+  }).then(() => {
+    isPaying.value = false;
+    renderOrder();
   });
 }
 
