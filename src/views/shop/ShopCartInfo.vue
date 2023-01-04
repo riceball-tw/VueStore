@@ -1,20 +1,35 @@
 <template>
-  <div class="container mx-auto my-8">
-    <div class="flex justify-center">
-      <CheckoutStep :current-step="2" />
-    </div>
+  <div class="container mx-auto py-16">
+    <CheckoutStep :current-step="2" />
 
-    <div class="flex gap-4 justify-center flex-row-reverse my-8">
+    <div class="flex flex-wrap px-4 gap-4 justify-center flex-row-reverse my-8">
       <!-- Sidebar -->
       <div class="min-w-[300px]">
-        <h2 class="text-2xl">訂單細節</h2>
+        <h2 class="text-2xl mb-2">訂單細節</h2>
 
         <div v-if="carts.length === 0">
           <p class="py-8">購物車內尚無商品</p>
-          <button class="btn btn-outline hover:btn-success btn-block" @click="router.push({ name: `products` })">
-            去採購
+          <button class="btn btn-outline hover:btn-primary btn-block" @click="router.push({ name: `products` })">
+            來去逛逛
           </button>
         </div>
+        <ul class="menu">
+          <li v-for="cart in carts" :key="cart.id" class="flex-row">
+            <!-- Image -->
+            <img width="150" class="bg-base-200" :src="cart.product.imageUrl" :alt="cart.product.title" />
+            <router-Link :to="{ path: `/product/${cart.product.id}` }">
+              <div class="flex flex-col">
+                <!-- Title -->
+                {{ cart.product.title }}
+                <!-- Price -->
+                <div>
+                  <span class="text font-medium mr-2">{{ cart.product.price }}<span>$NTD</span></span>
+                  <del class="opacity-40 inline-block">{{ cart.product.origin_price }}<span>$NTD</span></del>
+                </div>
+              </div>
+            </router-Link>
+          </li>
+        </ul>
       </div>
 
       <!-- Main Form -->
@@ -36,11 +51,11 @@
           }
         "
       >
-        <h2 class="text-2xl">訂購人資訊</h2>
+        <h1 class="text-2xl mb-2">填寫訂購資訊</h1>
         <!-- Email -->
         <div class="form-control w-full">
           <label for="email" class="label">
-            <span class="label-text">E-mail</span>
+            <span class="label-text">電子信箱</span>
           </label>
           <input
             id="email"
@@ -110,7 +125,7 @@
           ></textarea>
         </div>
 
-        <button :disabled="carts.length === 0" class="btn btn-outline" type="submit">確認付款去</button>
+        <button :disabled="carts.length === 0" class="btn btn-outline mt-8" type="submit">確認付款去</button>
       </form>
     </div>
   </div>
@@ -138,9 +153,9 @@ function createOrder(orderData) {
       ...orderData,
     },
   }).then((res) => {
-    if (!res.success) {
+    if (!res.data.success) {
       router.push({ name: 'products' });
-      return;
+      throw new Error(res.data.message);
     }
     router.push({ path: `checkout/${res.data.orderId}` });
   });
