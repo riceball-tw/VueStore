@@ -1,6 +1,6 @@
 <template>
   <vue-final-modal v-slot="{ close }" v-bind="$attrs" classes="flex justify-center items-center">
-    <div style="max-width: 1200px" class="modal-box w-full max-w-none p-8">
+    <div class="modal-box w-full max-w-none p-8">
       <div class="text-3xl font-bold mb-8">
         <slot name="title" />
       </div>
@@ -14,7 +14,8 @@
           }
         "
       >
-        <div>
+        <!-- Article Info -->
+        <div class="w-full max-w-[300px]">
           <!-- Title -->
           <div class="form-control w-full">
             <label for="title" class="label">
@@ -101,10 +102,11 @@
             </label>
           </div>
         </div>
+        <!-- Article Image & Content -->
         <div>
           <!-- Image Input -->
-          <div class="max-w-[500px]">
-            <img v-if="tempArticle.image" :src="tempArticle.image" />
+          <div>
+            <img v-if="tempArticle.image" class="rounded w-full" :src="tempArticle.image" />
             <label
               v-else
               for="imageUpload"
@@ -172,10 +174,10 @@
             </div>
           </div>
 
+          <!-- Content -->
           <label for="content" class="label">
             <span class="label-text">說明內容</span>
           </label>
-
           <ckeditor v-model="tempArticle.content" :editor="ClassicEditor" :config="ckeditorConfig()"></ckeditor>
         </div>
       </form>
@@ -189,31 +191,36 @@
 </template>
 
 <script setup>
-import { onMounted, ref, inject } from 'vue';
-import { toUnixTimestamp } from '@/helper/unitFilter';
+import { ref, inject } from 'vue';
+import { toUnixTimestamp, toReadableDate } from '@/helper/unitFilter';
 import VueTagsInput from '@sipec/vue3-tags-input';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import ckeditorConfig from '@/helper/ckeditorConfig';
 
-// Import
+// Import & Export
 const axiosWithAuth = inject('axiosWithAuth');
-
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   article: {
     type: Object,
     default() {
-      return {};
+      return {
+        isPublic: false,
+      };
     },
   },
 });
 
+// UI Data
 const tempArticle = ref({ ...props.article });
-const isUploadingImage = ref(false);
 const tag = ref('');
 
-if (!tempArticle.value.isPublic) {
-  tempArticle.value.isPublic = false;
+// UI State
+const isUploadingImage = ref(false);
+
+// Convert current article create_at to input accessible formate
+if (tempArticle.value.create_at) {
+  tempArticle.value.create_at = toReadableDate(tempArticle.value.create_at, '-');
 }
 
 function uploadImageFile(imageFile) {
@@ -234,33 +241,10 @@ function uploadImageFile(imageFile) {
 }
 
 function modalSubmit() {
-  const newArticle = {
-    id: tempArticle.value.id,
-    title: tempArticle.value.title,
-    author: tempArticle.value.author,
-    description: tempArticle.value.description,
-    content: tempArticle.value.content,
-    create_at: toUnixTimestamp(tempArticle.value.create_at),
-    image: tempArticle.value.image,
-    tag: tempArticle.value.tag,
-    isPublic: tempArticle.value.isPublic,
-  };
+  const newArticle = { ...tempArticle.value };
+  newArticle.create_at = toUnixTimestamp(newArticle.create_at);
   emit('confirm', newArticle);
 }
-
-onMounted(() => {
-  if (tempArticle.value.create_at) {
-    const isoString = new Date(tempArticle.value.create_at * 1000).toISOString();
-    const formattedDate = new Date(isoString)
-      .toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
-      .replace(/\//g, '-');
-    tempArticle.value.create_at = formattedDate;
-  }
-});
 </script>
 
 <script>
@@ -268,6 +252,7 @@ export default {
   inheritAttrs: false,
 };
 </script>
+
 <style lang="css">
 /* style the background and the text color of the input ... */
 .vue-tags-input {

@@ -16,7 +16,7 @@
           @click="
             () => {
               close();
-              confirmDelete();
+              $emit('confirm');
             }
           "
         >
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['confirm']);
+defineEmits(['confirm']);
 defineProps({
   dashboardItem: {
     type: Object,
@@ -37,15 +37,10 @@ defineProps({
     },
   },
 });
-
-function confirmDelete() {
-  emit('confirm');
-}
 </script>
 
 <script>
 export default {
-  name: 'DashboardDeleteModal',
   inheritAttrs: false,
 };
 </script>

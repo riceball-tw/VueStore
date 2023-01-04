@@ -99,44 +99,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { toUnixTimestamp } from '@/helper/unitFilter';
+import { ref } from 'vue';
+import { toUnixTimestamp, toReadableDate } from '@/helper/unitFilter';
 
+// Import & Export
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   coupon: {
     type: Object,
     default() {
-      return {};
+      return {
+        is_enabled: 0,
+      };
     },
   },
 });
 
-const tempCoupon = ref({});
-tempCoupon.value = { ...props.coupon };
+// UI Data
+const tempCoupon = ref({ ...props.coupon });
 
-function formSubmit() {
-  const newCoupon = {
-    title: tempCoupon.value.title,
-    is_enabled: tempCoupon.value.is_enabled ?? 0,
-    percent: tempCoupon.value.percent,
-    due_date: toUnixTimestamp(tempCoupon.value.due_date),
-    code: tempCoupon.value.code,
-  };
-  emit('confirm', newCoupon);
+// Convert current coupon due_date to input accessible formate
+if (tempCoupon.value.due_date) {
+  tempCoupon.value.due_date = toReadableDate(tempCoupon.value.due_date, '-');
 }
 
-onMounted(() => {
-  if (tempCoupon.value.due_date) {
-    const isoString = new Date(tempCoupon.value.due_date * 1000).toISOString();
-    const formattedDate = new Date(isoString)
-      .toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
-      .replace(/\//g, '-');
-    tempCoupon.value.due_date = formattedDate;
-  }
-});
+function formSubmit() {
+  const newCoupon = { ...tempCoupon.value };
+  newCoupon.due_date = toUnixTimestamp(newCoupon.due_date);
+  emit('confirm', newCoupon);
+}
 </script>

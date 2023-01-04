@@ -116,9 +116,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { toUnixTimestamp } from '@/helper/unitFilter';
+import { ref } from 'vue';
+import { toUnixTimestamp, toReadableDate } from '@/helper/unitFilter';
 
+// Import & Export
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   order: {
@@ -129,28 +130,17 @@ const props = defineProps({
   },
 });
 
-const tempOrder = ref({});
-tempOrder.value = { ...props.order };
+// UI Data
+const tempOrder = ref({ ...props.order });
+
+// Convert current order create_at to input accessible formate
+if (tempOrder.value.create_at) {
+  tempOrder.value.create_at = toReadableDate(tempOrder.value.create_at, '-');
+}
 
 function formSubmit() {
-  const newOrder = {
-    ...tempOrder.value,
-  };
+  const newOrder = { ...tempOrder.value };
   newOrder.create_at = toUnixTimestamp(tempOrder.value.create_at);
   emit('confirm', newOrder);
 }
-
-onMounted(() => {
-  if (tempOrder.value.create_at) {
-    const isoString = new Date(tempOrder.value.create_at * 1000).toISOString();
-    const formattedDate = new Date(isoString)
-      .toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
-      .replace(/\//g, '-');
-    tempOrder.value.create_at = formattedDate;
-  }
-});
 </script>

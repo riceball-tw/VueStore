@@ -325,6 +325,7 @@
 <script setup>
 import { ref, inject, computed } from 'vue';
 
+// Import & Export
 const axiosWithAuth = inject('axiosWithAuth');
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
@@ -332,22 +333,18 @@ const props = defineProps({
     type: Object,
     default() {
       return {
-        id: '',
-        imageUrl: '',
-        imagesUrl: [],
-        description: '',
-        content: '',
         is_enabled: 0,
       };
     },
   },
 });
 
-const tempProduct = ref({});
-tempProduct.value = { ...props.product };
+// UI Data
+const tempProduct = ref({ ...props.product });
+
+// UI State
 const isUploadingImage = ref(false);
 const isUploadingMutiImage = ref([]);
-
 const isFilledLastImage = computed(() => {
   if (!tempProduct.value.imagesUrl) {
     return true;
@@ -361,21 +358,7 @@ const isFilledLastImage = computed(() => {
 });
 
 function modalSubmit() {
-  const newProduct = {
-    // required
-    id: tempProduct.value.id,
-    title: tempProduct.value.title,
-    category: tempProduct.value.category,
-    unit: tempProduct.value.unit,
-    origin_price: tempProduct.value.origin_price,
-    price: tempProduct.value.price,
-    // Optional
-    imagesUrl: tempProduct.value.imagesUrl,
-    description: tempProduct.value.description,
-    content: tempProduct.value.content,
-    is_enabled: tempProduct.value.is_enabled,
-    imageUrl: tempProduct.value.imageUrl,
-  };
+  const newProduct = { ...tempProduct.value };
   emit('confirm', newProduct);
 }
 
@@ -386,9 +369,8 @@ function handleDeleteMutiImage(index) {
 function handleAddMultiImage() {
   // Backend doesn't accept store empty array, So we need to detect it
   if (!tempProduct.value.imagesUrl) {
-    tempProduct.value.imagesUrl = [];
+    tempProduct.value.imagesUrl = [''];
   }
-  tempProduct.value.imagesUrl.push('');
 }
 
 function uploadImageFile(imageFile) {

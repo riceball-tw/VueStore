@@ -106,12 +106,7 @@ function openAddCouponModal() {
     component: CouponModal,
     on: {
       confirm(modalData) {
-        const newCoupon = {
-          data: {
-            ...modalData,
-          },
-        };
-
+        const newCoupon = { data: { ...modalData } };
         addCoupon(newCoupon);
       },
     },
