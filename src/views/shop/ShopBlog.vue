@@ -4,7 +4,6 @@
   <div class="flex flex-wrap m-8 gap-4">
     <div v-for="article in articles" :key="article.id" class="card">
       <div class="card w-96 bg-base-100 shadow-xl">
-        {{ image }}
         <figure><img :src="article.image" :alt="article.title" /></figure>
         <div class="card-body">
           <h2 class="card-title">{{ article.title }}</h2>
