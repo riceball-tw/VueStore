@@ -1,0 +1,1 @@
+import{_ as o}from"./AppHero.c5bfa78d.js";import{o as e,l as t}from"./index.996adb43.js";const p={__name:"ShopHome",setup(r){return(_,a)=>(e(),t(o,{title:"\u9996\u9801",description:"\u4E00\u4E9B\u9996\u9801\u7684\u63CF\u8FF0\u6587\u5B57"}))}};export{p as default};
