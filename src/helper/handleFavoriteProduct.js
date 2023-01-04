@@ -5,6 +5,12 @@ function setFavoriteProducts(favoriteProduct) {
   localStorage.setItem('favoriteProduct', JSON.stringify(favoriteProduct));
 }
 
+export function deleteAllFavoriteProducts() {
+  localStorage.removeItem('favoriteProduct');
+  useToast().info(`已將所有項目從收藏中移除 `);
+  window.dispatchEvent(new Event('storeProducts'));
+}
+
 // Get favoriteProducts from localStorage
 export function getFavoriteProducts() {
   return JSON.parse(localStorage.getItem('favoriteProduct')) ?? [];
@@ -29,6 +35,5 @@ export function toggleFavoriteProduct(targetId, targetName) {
 
   // Set result
   setFavoriteProducts(favoriteProducts);
-  // Send window event
   window.dispatchEvent(new Event('storeProducts'));
 }
