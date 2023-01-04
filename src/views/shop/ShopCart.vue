@@ -1,9 +1,8 @@
 <template>
-  <div class="container mx-auto">
+  <div class="container mx-auto py-16">
     <CheckoutStep :current-step="1" />
-    <div v-if="!cartsData?.carts?.length">目前購物車內無商品</div>
     <!-- Section Title -->
-    <div class="flex justify-between w-full mb-8 px-4">
+    <div class="flex justify-between w-full py-8 px-4">
       <h1 class="text-4xl font-bold">用戶購物車</h1>
       <div class="btn-group">
         <button
@@ -14,13 +13,33 @@
         >
           清空購物車
         </button>
-        <button class="btn btn-success" type="button" @click="checkoutCart()">填寫資料</button>
+        <button
+          :disabled="isCartEmpty"
+          class="btn btn-primary"
+          type="button"
+          @click="
+            () => {
+              router.push({ name: 'cartInfo' });
+            }
+          "
+        >
+          填寫訂單資料
+        </button>
       </div>
     </div>
 
-    <div class="flex flex-col items-start lg:flex-row gap-4 px-4 mb-8">
+    <div class="flex flex-col lg:flex-row gap-4 px-4 mb-8">
       <!-- Cart Info -->
-      <div class="overflow-x-auto w-full">
+      <div v-if="isCartEmpty" class="w-full h-full bg-base-200 p-8 card flex items-center">
+        <svg class="mb-4" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="48" width="48">
+          <path
+            d="M14.35 43.95q-1.5 0-2.55-1.05-1.05-1.05-1.05-2.55 0-1.5 1.05-2.55 1.05-1.05 2.55-1.05 1.5 0 2.55 1.05 1.05 1.05 1.05 2.55 0 1.5-1.05 2.55-1.05 1.05-2.55 1.05Zm20 0q-1.5 0-2.55-1.05-1.05-1.05-1.05-2.55 0-1.5 1.05-2.55 1.05-1.05 2.55-1.05 1.5 0 2.55 1.05 1.05 1.05 1.05 2.55 0 1.5-1.05 2.55-1.05 1.05-2.55 1.05Zm-22.6-33 5.5 11.4h14.4l6.25-11.4Zm-1.5-3H39.7q1.15 0 1.75 1.05.6 1.05 0 2.1L34.7 23.25q-.55.95-1.425 1.525t-1.925.575H16.2l-2.8 5.2h24.55v3h-24.1q-2.1 0-3.025-1.4-.925-1.4.025-3.15l3.2-5.9L6.45 7h-3.9V4H8.4Zm7 14.4h14.4Z"
+          />
+        </svg>
+        <span class="text-2xl mb-8"> 目前購物車內無商品 </span>
+        <router-link class="btn" :to="{ name: 'products' }">來去逛逛</router-link>
+      </div>
+      <div v-else class="overflow-x-auto w-full">
         <table v-if="cartsData?.carts?.length" class="table w-full">
           <thead>
             <tr>
@@ -68,7 +87,6 @@
               <td class="text-right">
                 <span v-if="isUsingDiscount">
                   <del class="opacity-40">{{ cart.total }}<span>$NTD</span></del>
-
                   <div class="text-lg font-bold">{{ cart.final_total }}<span>$NTD</span></div>
                 </span>
                 <span v-else>{{ cart.total }}</span>
@@ -90,7 +108,10 @@
       </div>
 
       <!-- Coupon form -->
-      <div class="items-center card p-4 bg-base-200 w-full justify-center max-w-auto lg:max-w-[300px]">
+      <div
+        v-if="!isCartEmpty"
+        class="items-center card p-4 bg-base-200 w-full justify-center max-w-auto lg:max-w-[300px]"
+      >
         <div class="flex flex-col justify-center items-center">
           <svg
             class="transform-gpu rotate-12 mb-4"
@@ -107,7 +128,6 @@
         </div>
 
         <form
-          v-if="cartsData?.carts?.length"
           class="w-full flex"
           @submit.prevent="
             (e) => {
@@ -151,6 +171,7 @@ const cartsData = ref([]);
 // Component State
 const loadingCart = ref([]);
 const isUsingDiscount = computed(() => cartsData.value.total !== cartsData.value.final_total);
+const isCartEmpty = computed(() => !cartsData.value?.carts?.length);
 
 // Remotely get carts, then render them
 async function renderCarts() {
@@ -182,14 +203,6 @@ function editCart(cartId, quantity = 1) {
     .finally(() => {
       loadingCart.value = loadingCart.value.filter((cart) => cart !== cartId);
     });
-}
-
-function checkoutCart() {
-  if (cartsData.value.carts.length) {
-    router.push({ name: 'cartInfo' });
-  } else {
-    useToast().warning(`購物車內尚無商品`);
-  }
 }
 
 function handleEditCart(cartId, newQuantity = 1) {
