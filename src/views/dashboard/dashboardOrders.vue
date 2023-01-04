@@ -95,7 +95,7 @@ function deleteOrder(orderId) {
   axiosWithAuth({
     method: 'delete',
     url: `/admin/order/${orderId}`,
-  }).then((res) => {
+  }).then(() => {
     renderOrders();
   });
 }
@@ -121,7 +121,7 @@ function editOrder(targetOrder) {
     method: 'put',
     url: `/admin/order/${targetOrder.data.id}`,
     data: { ...targetOrder },
-  }).then((res) => {
+  }).then(() => {
     renderOrders();
   });
 }
@@ -156,7 +156,7 @@ function deleteAllOrders() {
   axiosWithAuth({
     method: 'delete',
     url: `/admin/orders/all`,
-  }).then((res) => {
+  }).then(() => {
     renderOrders();
   });
 }

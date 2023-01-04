@@ -156,7 +156,6 @@
 import { ref, inject, computed } from 'vue';
 import { $vfm } from 'vue-final-modal';
 import { useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification';
 import CheckoutStep from '@/components/shop/ShopCheckoutStep.vue';
 import DashboardDeleteModal from '@/components/modal/DashboardDeleteModal.vue';
 
@@ -237,7 +236,7 @@ function deleteAllCart() {
   axiosWithAuth({
     method: 'delete',
     url: `/carts`,
-  }).then((res) => {
+  }).then(() => {
     renderCarts();
   });
 }

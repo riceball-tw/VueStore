@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { useToast } from 'vue-toastification';
 
 function routerWrapper(app) {
   const { axiosWithAuth } = app.config.globalProperties;
@@ -58,7 +57,7 @@ function routerWrapper(app) {
         ],
       },
       { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
-      { path: '/404', name: '404', component: () => import('@/views/App404.vue'), hidden: true },
+      { path: '/404', name: '404', component: () => import('@/views/AppNotFound.vue'), hidden: true },
       { path: '/:catchAll(.*)', redirect: '/404', hidden: true },
     ],
     history: createWebHashHistory(),

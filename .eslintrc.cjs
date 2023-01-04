@@ -17,8 +17,10 @@ module.exports = {
     },
   },
   rules: {
-    // override/add rules settings here, such as:
-    // 'vue/multi-word-component-names': 'off',
-    // 'vue/no-unused-vars': 'error'
+    // Use declared function is okay
+    // https://stackoverflow.com/questions/56499552/for-what-purpose-no-use-before-define-warns-about-declared-functions
+    'no-use-before-define': ['error', { functions: false }],
+    // https://stackoverflow.com/questions/44939304/eslint-should-be-listed-in-the-projects-dependencies-not-devdependencies
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
   },
 };

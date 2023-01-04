@@ -412,7 +412,6 @@ function uploadMultipleImageFile(imageFile, updateIndex) {
   const imageFormData = new FormData();
   imageFormData.append('file-to-upload', imageFile);
   isUploadingMutiImage.value.push(updateIndex);
-  console.log(updateIndex);
   axiosWithAuth({
     method: 'post',
     url: `/admin/upload`,
