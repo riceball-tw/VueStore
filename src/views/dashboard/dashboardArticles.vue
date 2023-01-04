@@ -1,10 +1,12 @@
 <template>
+  <!-- Section Title -->
   <div class="flex justify-between w-full mb-8">
     <h1 class="text-4xl font-bold">後台文章資訊</h1>
     <button type="button" class="btn btn-primary" @click="openAddArticleModal()">新增文章</button>
   </div>
-  <div v-if="articles.length" class="overflow-x-auto w-full">
-    <table class="table table-zebra w-full">
+  <!-- Table -->
+  <div v-if="articles.length" class="overflow-x-auto">
+    <table class="table table-zebra">
       <thead>
         <tr>
           <th>索引</th>
@@ -20,43 +22,33 @@
       </thead>
       <tbody>
         <tr v-for="(article, index) in articles" :key="article.key">
-          <th>
-            {{ pagination.current_page === 1 ? index + 1 : index + 1 + pagination.current_page * 10 - 10 }}
-          </th>
+          <th>{{ pagination.current_page === 1 ? index + 1 : index + 1 + pagination.current_page * 10 - 10 }}</th>
           <td>
-            <img width="150" :src="article.image" :alt="article.image ? article.title : 'x'" />
+            <img class="rounded" width="150" :src="article.image" :alt="article.image ? article.title : 'x'" />
           </td>
-          <td class="whitespace-normal">{{ article.title }}</td>
-          <td class="whitespace-normal">{{ article.description }}</td>
+          <td class="whitespace-normal prose max-w-none">{{ article.title }}</td>
+          <td class="whitespace-normal prose max-w-none">{{ article.description }}</td>
           <td v-if="article?.tag?.length">
-            <span v-for="tag in article.tag" :key="tag" class="badge-lg badge badge-outline">
-              {{ tag.text }}
-            </span>
+            <div class="gap-2 flex">
+              <span v-for="tag in article.tag" :key="tag" class="badge-lg badge badge-outline">
+                {{ tag.text }}
+              </span>
+            </div>
           </td>
-          <td v-else>無</td>
-
+          <td v-else>無標籤</td>
           <td>{{ $unitFilters.toReadableDate(article.create_at) }}</td>
           <td>{{ article.author }}</td>
-
           <td>
             <span v-if="article.isPublic" class="text-success">公開</span>
             <span v-else class="text-warning">不公開</span>
           </td>
-
           <td>
             <div class="btn-group">
-              <button
-                class="btn btn-outline btn-square"
-                @click="
-                  () => {
-                    openEditArticleModal(article);
-                  }
-                "
-              >
+              <button class="btn btn-outline btn-square" @click="openEditArticleModal(article)">
                 <svg
                   v-if="loadingSpecificArticleId.includes(article.id)"
                   fill="currentColor"
-                  title="等待"
+                  title="Pending 等待"
                   xmlns="http://www.w3.org/2000/svg"
                   height="24"
                   width="24"
@@ -66,7 +58,14 @@
                   />
                 </svg>
 
-                <svg v-else title="編輯" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+                <svg
+                  v-else
+                  title="Edit 編輯"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  width="24"
+                >
                   <path
                     d="M5 19h1.4l8.625-8.625-1.4-1.4L5 17.6ZM19.3 8.925l-4.25-4.2 1.4-1.4q.575-.575 1.413-.575.837 0 1.412.575l1.4 1.4q.575.575.6 1.388.025.812-.55 1.387ZM17.85 10.4 7.25 21H3v-4.25l10.6-10.6Zm-3.525-.725-.7-.7 1.4 1.4Z"
                   />
@@ -76,7 +75,7 @@
                 class="btn btn-outline btn-square hover:btn-error -ml-px"
                 @click="openDeleteArticleModal(article)"
               >
-                <svg title="刪除" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+                <svg title="Delete 刪除" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
                   <path
                     d="M7 21q-.825 0-1.412-.587Q5 19.825 5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413Q17.825 21 17 21ZM17 6H7v13h10ZM9 17h2V8H9Zm4 0h2V8h-2ZM7 6v13Z"
                   />
@@ -136,9 +135,7 @@ function addArticle(targetArticle) {
   axiosWithAuth({
     method: 'post',
     url: `admin/article`,
-    data: {
-      ...targetArticle,
-    },
+    data: { ...targetArticle },
   }).then(() => {
     renderArticles();
   });
@@ -149,12 +146,7 @@ function openAddArticleModal() {
     component: ArticleModal,
     on: {
       confirm(modalData) {
-        const newArticle = {
-          data: {
-            ...modalData,
-          },
-        };
-        addArticle(newArticle);
+        addArticle({ data: { ...modalData } });
       },
     },
     slots: { title: '新增文章' },
@@ -195,12 +187,7 @@ async function openEditArticleModal(targetArticle) {
     bind: { article: { ...fullTargetArticle } },
     on: {
       confirm(modalData) {
-        const newArticle = {
-          data: {
-            ...modalData,
-          },
-        };
-        editArticle(newArticle);
+        editArticle({ data: { ...modalData } });
       },
     },
     slots: { title: '編輯文章' },
