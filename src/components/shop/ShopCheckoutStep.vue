@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full flex justify-center px-4">
-    <div class="steps">
+  <div class="flex justify-center px-4">
+    <div class="steps max-w-[500px] w-full">
       <router-link
         v-for="(step, index) in stepsData"
         :key="step.title"
         class="step"
         :class="{ 'step-primary': index < props.currentStep }"
-        :to="step.link"
+        :to="{ name: step.link }"
       >
         {{ step.title }}
       </router-link>
@@ -24,15 +24,15 @@ const props = defineProps({
 
 const stepsData = [
   {
-    title: '確認購物車品項',
+    title: '購物車',
     link: 'cart',
   },
   {
-    title: '填寫訂單資料',
+    title: '填寫訂單',
     link: 'cartInfo',
   },
   {
-    title: '確認訂單資料並付款',
+    title: '確認付款',
     link: 'cartInfo',
   },
 ];
