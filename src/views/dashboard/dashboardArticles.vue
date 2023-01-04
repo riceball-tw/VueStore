@@ -26,9 +26,9 @@
           <td>
             <img width="150" :src="article.image" :alt="article.image ? article.title : 'x'" />
           </td>
-          <td>{{ article.title }}</td>
-          <td>{{ article.description }}</td>
-          <td v-if="article?.tag?.length" class="flex gap-2">
+          <td class="whitespace-normal">{{ article.title }}</td>
+          <td class="whitespace-normal">{{ article.description }}</td>
+          <td v-if="article?.tag?.length">
             <span v-for="tag in article.tag" :key="tag" class="badge-lg badge badge-outline">
               {{ tag.text }}
             </span>
