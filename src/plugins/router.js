@@ -58,6 +58,8 @@ function routerWrapper(app) {
         ],
       },
       { path: '/login', name: 'login', component: () => import('@/views/AppLogin.vue') },
+      { path: '/404', name: '404', component: () => import('@/views/App404.vue'), hidden: true },
+      { path: '/:catchAll(.*)', redirect: '/404', hidden: true },
     ],
     history: createWebHashHistory(),
   });
