@@ -58,38 +58,35 @@
                 </label>
               </div>
             </button>
+
             <ul
               tabindex="0"
-              class="menu menu-normal dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box min-w-max"
+              class="overflow-y-auto overflow-hidden max-h-[600px] flex-nowrap menu menu-normal dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box min-w-max"
             >
-              <li v-if="!favoriteProducts.length">
+              <li v-if="hasProducts">
                 <div class="p-8">我的最愛目前還沒有商品</div>
-                <router-link class="btn btn-ghost" :to="{ name: 'products' }">來去找找</router-link>
+                <router-link class="btn btn-ghost hover:btn-primary" :to="{ name: 'products' }">來去找找</router-link>
               </li>
-              <li v-for="product in products" v-else :key="product.id">
+              <li v-for="product in products" :key="product.id">
                 <router-link :to="{ path: `/product/${product.id}` }">
                   <!-- Image -->
-                  <img width="150" :src="product.imageUrl" :alt="product.title" />
+                  <img width="100" :src="product.imageUrl" :alt="product.title" />
                   <!-- Info -->
-                  <div class="flex flex-col">
+                  <div class="flex flex-col w-full">
                     <!-- Title -->
-                    <div class="text-lg">
+                    <div class="text-lg whitespace-nowrap">
                       {{ product.title }}
                     </div>
                     <!-- Price -->
                     <div>
-                      <span class="line-through opacity-60">
-                        {{ product.origin_price }}
-                      </span>
-                      <span>
-                        {{ product.price }}
-                      </span>
+                      <span class="text font-medium mr-2">{{ product.price }}<span>$NTD</span></span>
+                      <del class="opacity-40 inline-block">{{ product.origin_price }}<span>$NTD</span></del>
                     </div>
                     <!-- Action -->
-                    <div>
+                    <div class="card-actions">
                       <button
                         type="button"
-                        class="btn btn-ghost hover:btn-error"
+                        class="btn ml-auto btn-sm btn-outline hover:btn-error"
                         @click.stop.prevent="deleteCartProduct(product)"
                       >
                         刪除
@@ -98,6 +95,13 @@
                   </div>
                 </router-link>
               </li>
+              <button
+                v-if="!hasProducts"
+                class="btn btn-block btn-outline hover:btn-error"
+                @click="deleteAllCartProduct"
+              >
+                刪除全部
+              </button>
             </ul>
           </div>
         </li>
@@ -107,8 +111,8 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
-import { getFavoriteProducts, toggleFavoriteProduct } from '@/helper/handleFavoriteProduct';
+import { ref, inject, computed } from 'vue';
+import { getFavoriteProducts, toggleFavoriteProduct, deleteAllFavoriteProducts } from '@/helper/handleFavoriteProduct';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
@@ -116,6 +120,8 @@ const axiosWithAuth = inject('axiosWithAuth');
 // UI Data
 const products = ref(getCartProducts());
 const favoriteProducts = ref(getFavoriteProducts());
+
+const hasProducts = computed(() => !favoriteProducts.value.length);
 
 // Remotely get all products and filter out favorite one
 function getCartProducts() {
@@ -127,8 +133,16 @@ function getCartProducts() {
   });
 }
 
+// Delete target cart product
 function deleteCartProduct(targetProduct) {
   toggleFavoriteProduct(targetProduct.id, targetProduct.title);
+  favoriteProducts.value = getFavoriteProducts();
+  getCartProducts();
+}
+
+// Delete all cart products
+function deleteAllCartProduct() {
+  deleteAllFavoriteProducts();
   favoriteProducts.value = getFavoriteProducts();
   getCartProducts();
 }
