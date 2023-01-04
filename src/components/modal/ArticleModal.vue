@@ -176,7 +176,7 @@
             <span class="label-text">說明內容</span>
           </label>
 
-          <textarea ref="editorComponent" v-model="tempArticle.content"></textarea>
+          <ckeditor v-model="tempArticle.content" :editor="ClassicEditor" :config="ckeditorConfig()"></ckeditor>
         </div>
       </form>
 
@@ -193,11 +193,11 @@ import { onMounted, ref, inject } from 'vue';
 import { toUnixTimestamp } from '@/helper/unitFilter';
 import VueTagsInput from '@sipec/vue3-tags-input';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import ckeditorConfig from '@/helper/ckeditorConfig';
 
 // Import
 const axiosWithAuth = inject('axiosWithAuth');
 
-const editorComponent = ref(null);
 const emit = defineEmits(['confirm', 'cancel']);
 const props = defineProps({
   article: {
@@ -208,10 +208,8 @@ const props = defineProps({
   },
 });
 
-const tempArticle = ref({});
+const tempArticle = ref({ ...props.article });
 const isUploadingImage = ref(false);
-tempArticle.value = { ...props.article };
-
 const tag = ref('');
 
 if (!tempArticle.value.isPublic) {
@@ -251,92 +249,6 @@ function modalSubmit() {
 }
 
 onMounted(() => {
-  class MyUploadAdapter {
-    constructor(loader) {
-      this.loader = loader;
-    }
-
-    upload() {
-      return this.loader.file.then(
-        (file) =>
-          new Promise((resolve) => {
-            this.sendRequest(file, resolve);
-          }),
-      );
-    }
-
-    sendRequest(file, resolve) {
-      const data = new FormData();
-      data.append('upload', file);
-      axiosWithAuth({
-        method: 'post',
-        url: `/admin/upload`,
-        data,
-      }).then((res) => {
-        this.loader.image = res.data.image;
-        resolve({ default: res.data.image });
-      });
-    }
-  }
-
-  function MyCustomUploadAdapterPlugin(editor) {
-    editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
-      // Configure the URL to the upload script in your back-end here!
-      new MyUploadAdapter(loader);
-  }
-
-  ClassicEditor.create(editorComponent.value, {
-    extraPlugins: [MyCustomUploadAdapterPlugin],
-    toolbar: [
-      'heading',
-      '|',
-      'bold',
-      'italic',
-      'blockQuote',
-      '|',
-      'uploadImage',
-      'link',
-      'insertTable',
-      'mediaEmbed',
-      '|',
-      'undo',
-      'redo',
-    ],
-    heading: {
-      options: [
-        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-        {
-          model: 'heading2',
-          view: 'h2',
-          title: 'Heading 2',
-          class: 'ck-heading_heading2',
-        },
-        {
-          model: 'heading3',
-          view: 'h3',
-          title: 'Heading 3',
-          class: 'ck-heading_heading3',
-        },
-        {
-          model: 'heading4',
-          view: 'h4',
-          title: 'Heading 4',
-          class: 'ck-heading_heading4',
-        },
-      ],
-    },
-    initialData: tempArticle.value.content,
-  })
-    .then((editor) => {
-      window.editor = editor;
-      editor.model.document.on('change:data', () => {
-        tempArticle.value.content = editor.getData();
-      });
-    })
-    .catch((error) => {
-      console.error('There was a problem initializing the editor.', error);
-    });
-
   if (tempArticle.value.create_at) {
     const isoString = new Date(tempArticle.value.create_at * 1000).toISOString();
     const formattedDate = new Date(isoString)
@@ -366,118 +278,12 @@ export default {
 .ti-input {
   border: none !important;
 }
-</style>
-<style>
-/* Set CKEditor height in Vue.js [duplicate] */
-/* https://stackoverflow.com/questions/53935399/set-ckeditor-height-in-vue-js */
+
 .ck-editor__editable {
   min-height: 200px;
 }
 
 .ck-editor {
   max-width: 800px;
-}
-
-:root {
-  /* Overrides the border radius setting in the theme. */
-  --ck-border-radius: 4px;
-
-  /* Overrides the default font size in the theme. */
-  --ck-font-size-base: 14px;
-
-  /* Helper variables to avoid duplication in the colors. */
-  --ck-custom-background: hsl(270, 1%, 29%);
-  --ck-custom-foreground: hsl(255, 3%, 18%);
-  --ck-custom-border: hsl(300, 1%, 22%);
-  --ck-custom-white: hsl(0, 0%, 100%);
-
-  /* -- Overrides generic colors. ------------------------------------------------------------- */
-
-  --ck-color-base-foreground: var(--ck-custom-background);
-  --ck-color-focus-border: hsl(208, 90%, 62%);
-  --ck-color-text: hsl(0, 0%, 98%);
-  --ck-color-shadow-drop: hsla(0, 0%, 0%, 0.2);
-  --ck-color-shadow-inner: hsla(0, 0%, 0%, 0.1);
-
-  /* -- Overrides the default .ck-button class colors. ---------------------------------------- */
-
-  --ck-color-button-default-background: var(--ck-custom-background);
-  --ck-color-button-default-hover-background: hsl(270, 1%, 22%);
-  --ck-color-button-default-active-background: hsl(270, 2%, 20%);
-  --ck-color-button-default-active-shadow: hsl(270, 2%, 23%);
-  --ck-color-button-default-disabled-background: var(--ck-custom-background);
-
-  --ck-color-button-on-background: var(--ck-custom-foreground);
-  --ck-color-button-on-hover-background: hsl(255, 4%, 16%);
-  --ck-color-button-on-active-background: hsl(255, 4%, 14%);
-  --ck-color-button-on-active-shadow: hsl(240, 3%, 19%);
-  --ck-color-button-on-disabled-background: var(--ck-custom-foreground);
-
-  --ck-color-button-action-background: hsl(168, 76%, 42%);
-  --ck-color-button-action-hover-background: hsl(168, 76%, 38%);
-  --ck-color-button-action-active-background: hsl(168, 76%, 36%);
-  --ck-color-button-action-active-shadow: hsl(168, 75%, 34%);
-  --ck-color-button-action-disabled-background: hsl(168, 76%, 42%);
-  --ck-color-button-action-text: var(--ck-custom-white);
-
-  --ck-color-button-save: hsl(120, 100%, 46%);
-  --ck-color-button-cancel: hsl(15, 100%, 56%);
-
-  /* -- Overrides the default .ck-dropdown class colors. -------------------------------------- */
-
-  --ck-color-dropdown-panel-background: var(--ck-custom-background);
-  --ck-color-dropdown-panel-border: var(--ck-custom-foreground);
-
-  /* -- Overrides the default .ck-splitbutton class colors. ----------------------------------- */
-
-  --ck-color-split-button-hover-background: var(--ck-color-button-default-hover-background);
-  --ck-color-split-button-hover-border: var(--ck-custom-foreground);
-
-  /* -- Overrides the default .ck-input class colors. ----------------------------------------- */
-
-  --ck-color-input-background: var(--ck-custom-foreground);
-  --ck-color-input-border: hsl(257, 3%, 43%);
-  --ck-color-input-text: hsl(0, 0%, 98%);
-  --ck-color-input-disabled-background: hsl(255, 4%, 21%);
-  --ck-color-input-disabled-border: hsl(250, 3%, 38%);
-  --ck-color-input-disabled-text: hsl(0, 0%, 46%);
-
-  /* -- Overrides the default .ck-list class colors. ------------------------------------------ */
-
-  --ck-color-list-background: var(--ck-custom-background);
-  --ck-color-list-button-hover-background: var(--ck-color-base-foreground);
-  --ck-color-list-button-on-background: var(--ck-color-base-active);
-  --ck-color-list-button-on-background-focus: var(--ck-color-base-active-focus);
-  --ck-color-list-button-on-text: var(--ck-color-base-background);
-
-  /* -- Overrides the default .ck-balloon-panel class colors. --------------------------------- */
-
-  --ck-color-panel-background: var(--ck-custom-background);
-  --ck-color-panel-border: var(--ck-custom-border);
-
-  /* -- Overrides the default .ck-toolbar class colors. --------------------------------------- */
-
-  --ck-color-toolbar-background: var(--ck-custom-background);
-  --ck-color-toolbar-border: var(--ck-custom-border);
-
-  /* -- Overrides the default .ck-tooltip class colors. --------------------------------------- */
-
-  --ck-color-tooltip-background: hsl(252, 7%, 14%);
-  --ck-color-tooltip-text: hsl(0, 0%, 93%);
-
-  /* -- Overrides the default colors used by the ckeditor5-image package. --------------------- */
-
-  --ck-color-image-caption-background: hsl(0, 0%, 97%);
-  --ck-color-image-caption-text: hsl(0, 0%, 20%);
-
-  /* -- Overrides the default colors used by the ckeditor5-widget package. -------------------- */
-
-  --ck-color-widget-blurred-border: hsl(0, 0%, 87%);
-  --ck-color-widget-hover-border: hsl(43, 100%, 68%);
-  --ck-color-widget-editable-focus-background: var(--ck-custom-white);
-
-  /* -- Overrides the default colors used by the ckeditor5-link package. ---------------------- */
-
-  --ck-color-link-default: hsl(190, 100%, 75%);
 }
 </style>
