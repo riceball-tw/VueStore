@@ -5,12 +5,13 @@ export function currency(num) {
     .replace(/./g, (c, i, a) => (i && c !== '.' && (a.length - i) % 3 === 0 ? `, ${c}`.replace(/\s/g, '') : c))}`;
 }
 
-export function toReadableDate(time) {
-  return new Date(time * 1000).toLocaleDateString('zh-TW', {
+export function toReadableDate(time, seperator) {
+  const formattedDate = new Date(time * 1000).toLocaleDateString('zh-TW', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   });
+  return seperator ? formattedDate.replace(/\//g, seperator) : formattedDate;
 }
 
 export function toUnixTimestamp(time) {
