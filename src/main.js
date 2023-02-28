@@ -12,10 +12,12 @@ import LoaderIcon from '@/components/AppLoader.vue';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import axiosConfig from '@/plugins/axiosConfig';
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import router from './plugins/router';
 import App from './App.vue';
 
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
 const app = createApp(App);
 app.config.globalProperties.$unitFilters = {
