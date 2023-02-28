@@ -9,7 +9,6 @@ import { LoadingPlugin } from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
 import Toast from 'vue-toastification';
 import LoaderIcon from '@/components/AppLoader.vue';
-import CKEditor from '@ckeditor/ckeditor5-vue';
 import axiosConfig from '@/plugins/axiosConfig';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
@@ -36,5 +35,4 @@ app
   .provide('axiosWithAuth', app.config.globalProperties.axiosWithAuth)
   .use(Toast, { position: 'top-center', icon: true })
   .use(router(app))
-  .use(CKEditor)
   .mount('#app');
