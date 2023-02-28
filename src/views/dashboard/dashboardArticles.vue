@@ -26,8 +26,8 @@
           <td>
             <img class="rounded" width="150" :src="article.image" :alt="article.image ? article.title : 'x'" />
           </td>
-          <td class="whitespace-normal prose max-w-none">{{ article.title }}</td>
-          <td class="whitespace-normal prose max-w-none">{{ article.description }}</td>
+          <td class="whitespace-normal prose">{{ article.title }}</td>
+          <td class="whitespace-normal prose">{{ article.description }}</td>
           <td v-if="article?.tag?.length">
             <div class="gap-2 flex">
               <span v-for="tag in article.tag" :key="tag" class="badge-lg badge badge-outline">
