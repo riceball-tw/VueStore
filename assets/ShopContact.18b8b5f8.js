@@ -1,1 +1,0 @@
-import{_ as t}from"./AppHero.d07ff2c1.js";import{o,l as e}from"./index.58e29e9e.js";const n={__name:"ShopContact",setup(r){return(a,c)=>(o(),e(t,{title:"\u806F\u7D61\u6211\u5011",description:"\u9700\u8981\u5E6B\u5FD9\u55CE\uFF1F"}))}};export{n as default};

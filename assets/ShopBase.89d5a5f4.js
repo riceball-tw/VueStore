@@ -1,0 +1,1 @@
+import{_ as r,F as t}from"./AppFooter.6ce9e02d.js";import{o as s,c as a,a as e,b as n,F as c,r as _}from"./index.036f5c0f.js";import"./vueStore.eb9a6389.js";import"./productStore.fb503503.js";const m={class:"min-h-screen"},v={__name:"ShopBase",setup(p){return(i,l)=>{const o=_("router-view");return s(),a(c,null,[e(r),n("div",m,[e(o)]),e(t)],64)}}};export{v as default};
