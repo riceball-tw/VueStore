@@ -7,7 +7,6 @@
       <div class="flex">
         <img v-for="image in product.imagesUrl" :key="image" width="100" :src="image" :alt="image" />
       </div>
-      <div>這部分可能用個 Slider</div>
     </div>
     <!-- Product Info -->
     <div>
@@ -25,30 +24,41 @@
           class="btn btn-ghost btn-square"
           @click="
             () => {
-              isProductFavorited = !isProductFavorited;
-              toggleFavoriteProduct(product.id, product.title);
+              toggleFavoriteProduct(product.id);
+              toastFavoriteProduct(product.id, product.title);
             }
           "
         >
-          <svg
-            v-if="isProductFavorited"
-            title="Solid Heart"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-            fill="#000000"
-          >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-            />
-          </svg>
-          <svg v-else title="Outlined Heart" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
-            <path
-              d="m12 21-1.45-1.3q-2.525-2.275-4.175-3.925T3.75 12.812Q2.775 11.5 2.388 10.4 2 9.3 2 8.15 2 5.8 3.575 4.225 5.15 2.65 7.5 2.65q1.3 0 2.475.55T12 4.75q.85-1 2.025-1.55 1.175-.55 2.475-.55 2.35 0 3.925 1.575Q22 5.8 22 8.15q0 1.15-.387 2.25-.388 1.1-1.363 2.412-.975 1.313-2.625 2.963-1.65 1.65-4.175 3.925Zm0-2.7q2.4-2.15 3.95-3.688 1.55-1.537 2.45-2.674.9-1.138 1.25-2.026.35-.887.35-1.762 0-1.5-1-2.5t-2.5-1q-1.175 0-2.175.662-1 .663-1.375 1.688h-1.9q-.375-1.025-1.375-1.688-1-.662-2.175-.662-1.5 0-2.5 1t-1 2.5q0 .875.35 1.762.35.888 1.25 2.026.9 1.137 2.45 2.674Q9.6 16.15 12 18.3Zm0-6.825Z"
-            />
-          </svg>
+          <span v-if="favoriteProductIDs.includes(product.id)"
+            ><svg
+              title="Solid Heart 實心的愛心"
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="currentColor"
+            >
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
+          </span>
+          <span v-else>
+            <svg
+              title="Outlined Heart 空心的愛心"
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 0 24 24"
+              width="24px"
+              fill="currentColor"
+            >
+              <path d="M0 0h24v24H0V0z" fill="none" />
+              <path
+                d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
+              />
+            </svg>
+          </span>
         </button>
       </div>
       <!-- Description -->
@@ -63,7 +73,7 @@
         class="flex gap-4"
         @submit.prevent="
           (e) => {
-            addToCart(parseInt(e.target.productCount.value));
+            addProductToCart(product.id, parseInt(e.target.productCount.value));
           }
         "
       >
@@ -78,8 +88,8 @@
           placeholder="請輸入優惠券名稱……"
           required
         />
-        <button class="btn btn-success" type="submit" :disabled="loadingProduct === productId">
-          <span v-if="loadingProduct !== productId">新增至購物車</span>
+        <button class="btn btn-success" type="submit" :disabled="productIdsBeingLoaded.includes(product.id)">
+          <span v-if="!productIdsBeingLoaded.includes(product.id)">新增至購物車</span>
           <div v-else>
             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
               <path
@@ -89,47 +99,43 @@
           </div>
         </button>
       </form>
-
       <div class="prose" v-html="product.content"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
 import { ref, inject } from 'vue';
-import { toggleFavoriteProduct, checkIsProductFavorited } from '@/helper/handleFavoriteProduct';
+import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useProductStore } from '@/stores/productStore';
+import { useFavoriteProductStore } from '@/stores/favoriteProductStore';
 
-// Import
 const axiosWithAuth = inject('axiosWithAuth');
-
-// UI Data
+const $loading = inject('$loading');
+const favoriteProductStore = useFavoriteProductStore();
+const productStore = useProductStore();
+const { productIdsBeingLoaded } = storeToRefs(productStore);
+const { favoriteProductIDs } = storeToRefs(favoriteProductStore);
+const { toggleFavoriteProduct, toastFavoriteProduct } = favoriteProductStore;
+const { addProductToCart } = productStore;
 const { productId } = useRoute().params;
 const product = ref({});
 
-// UI State
-const loadingProduct = ref('');
-const isProductFavorited = ref(checkIsProductFavorited(productId));
-
-function addToCart(quantity = 1) {
-  loadingProduct.value = productId;
-  axiosWithAuth({
-    method: 'post',
-    url: `/cart`,
-    data: { data: { product_id: productId, qty: quantity } },
-  }).finally(() => {
-    loadingProduct.value = '';
-  });
-}
-
 async function getProduct() {
+  const loader = $loading.show();
   axiosWithAuth({
     method: 'get',
     url: `/product/${productId}`,
-  }).then((res) => {
-    product.value = res.data.product;
-  });
+  })
+    .then((res) => {
+      product.value = res.data.product;
+    })
+    .finally(() => {
+      loader.hide();
+    });
 }
 
 getProduct();
+console.log('x');
 </script>

@@ -9,11 +9,19 @@
           <li>
             <button :class="{ active: selectedCategory === 'all' }" @click="selectedCategory = 'all'">全部</button>
           </li>
+
           <li v-for="category in categories" :key="category">
             <button
               :class="{ active: selectedCategory === category }"
               type="button"
-              @click="selectedCategory = category"
+              @click="
+                () => {
+                  productStore.$patch({
+                    selectedCategory: category,
+                    currentPage: 1,
+                  });
+                }
+              "
             >
               {{ category }}
             </button>
@@ -22,9 +30,15 @@
       </div>
 
       <!-- Product Gallery -->
-      <div ref="galleryElement" class="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-if="isFetching">產品資料正在加載中……</div>
+      <div
+        v-else
+        ref="productGalleryElement"
+        class="pb-8 grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        style="scroll-margin-top: 2rem"
+      >
         <h2 class="sr-only">產品清單</h2>
-        <div v-for="product in products" :key="product.id" class="card bg-base-100 shadow-xl">
+        <div v-for="product in categoryFilteredInRangeProducts" :key="product.id" class="card bg-base-100 shadow-xl">
           <figure><img class="bg-base-200 w-full" :src="product.imageUrl" :alt="product.title" /></figure>
           <div class="card-body">
             <!-- Title -->
@@ -48,10 +62,10 @@
               <div class="btn-group [&>.btn]:border-l-0 [&>.btn:first-child]:border-l">
                 <button
                   class="btn btn-outline"
-                  :disabled="loadingProduct.includes(product.id)"
-                  @click="addToCart(product.id)"
+                  :disabled="productIdsBeingLoaded.includes(product.id)"
+                  @click="addProductToCart(product.id)"
                 >
-                  <div v-if="loadingProduct.includes(product.id)">
+                  <div v-if="productIdsBeingLoaded.includes(product.id)">
                     <svg title="Pending... 等待圖示" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
                       <path
                         d="M7 13.5q.625 0 1.062-.438Q8.5 12.625 8.5 12t-.438-1.062Q7.625 10.5 7 10.5t-1.062.438Q5.5 11.375 5.5 12t.438 1.062Q6.375 13.5 7 13.5Zm5 0q.625 0 1.062-.438.438-.437.438-1.062t-.438-1.062Q12.625 10.5 12 10.5t-1.062.438Q10.5 11.375 10.5 12t.438 1.062q.437.438 1.062.438Zm5 0q.625 0 1.062-.438.438-.437.438-1.062t-.438-1.062Q17.625 10.5 17 10.5t-1.062.438Q15.5 11.375 15.5 12t.438 1.062q.437.438 1.062.438ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"
@@ -64,11 +78,12 @@
                   class="btn btn-outline"
                   @click="
                     () => {
-                      handleToggleFavoriteProduct(product.id, product.title);
+                      toggleFavoriteProduct(product.id);
+                      toastFavoriteProduct(product.id, product.title);
                     }
                   "
                 >
-                  <span v-if="favoriteProducts.includes(product.id)"
+                  <span v-if="favoriteProductIDs.includes(product.id)"
                     ><svg
                       title="Solid Heart 實心的愛心"
                       xmlns="http://www.w3.org/2000/svg"
@@ -105,132 +120,40 @@
         </div>
       </div>
     </div>
-    <Pagination :pages="pagination" @pagination-change="handlePaginationChange" />
+    <Pagination
+      :pages="pagination"
+      @pagination-change="
+        (targetPage) => {
+          productStore.$patch({
+            currentPage: targetPage,
+          });
+        }
+      "
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue';
-import { getFavoriteProducts, toggleFavoriteProduct } from '@/helper/handleFavoriteProduct';
+import { ref, watch } from 'vue';
+import { useProductStore } from '@/stores/productStore';
+import { useFavoriteProductStore } from '@/stores/favoriteProductStore';
+import { storeToRefs } from 'pinia';
 import Pagination from '@/components/AppPagination.vue';
 import Hero from '@/components/AppHero.vue';
 
-// Import
-const axiosWithAuth = inject('axiosWithAuth');
-const $loading = inject('$loading');
+const productStore = useProductStore();
+const favoriteProductStore = useFavoriteProductStore();
+const { categoryFilteredInRangeProducts, categories, isFetching, pagination, selectedCategory, productIdsBeingLoaded } =
+  storeToRefs(productStore);
+const { addProductToCart } = productStore;
+const { favoriteProductIDs } = storeToRefs(favoriteProductStore);
+const { toggleFavoriteProduct, toastFavoriteProduct } = favoriteProductStore;
 
-// UI Data
-const products = ref([]); // Display products
-const pagination = ref({}); // Display pagination
-const cloudProducts = ref([]); // Store allProducts
-const selectedCategory = ref('all'); // Current Category
-const categories = ref([]); // Current available categories
-const galleryElement = ref(null); // Gallery DOM Element
-const favoriteProducts = ref(getFavoriteProducts());
+const productGalleryElement = ref(null);
 
-// Other State
-const loadingProduct = ref([]);
-const productsPerPage = 10;
+productStore.fetchAllProducts();
 
-// Watch selectedCategory, load corresponding products & pagination
-watch(selectedCategory, (next) => {
-  setTimeout(() => {
-    galleryElement.value.scrollIntoView({ behavior: 'smooth' });
-  }, 100);
-  if (next === 'all') {
-    products.value = generateProducts(cloudProducts.value);
-    pagination.value = generatePagination(cloudProducts.value.length);
-  } else {
-    products.value = generateProducts(getProductsSortedbyCategory());
-    pagination.value = generatePagination(getProductsSortedbyCategory().length);
-  }
+watch(selectedCategory, () => {
+  productGalleryElement.value.scrollIntoView({ behavior: 'smooth' });
 });
-
-function getProductsSortedbyCategory(category = selectedCategory.value) {
-  return cloudProducts.value.filter((product) => product.category === category);
-}
-
-function addToCart(productId, quantity = 1) {
-  loadingProduct.value = [...loadingProduct.value, productId];
-  axiosWithAuth({
-    method: 'post',
-    url: `/cart`,
-    data: { data: { product_id: productId, qty: quantity } },
-  }).finally(() => {
-    loadingProduct.value = loadingProduct.value.filter((product) => product !== productId);
-  });
-}
-
-function generateMaxPage(productCount, perPage = productsPerPage) {
-  return Math.round(productCount / perPage);
-}
-
-function generatePagination(productCount, currentPage = 1) {
-  const maxPage = generateMaxPage(productCount);
-  return {
-    total_pages: maxPage,
-    current_page: currentPage,
-    has_pre: currentPage !== 1,
-    has_next: currentPage < maxPage,
-    category: null,
-  };
-}
-
-function generateProducts(allProducts, currentPage = 1) {
-  const maxPage = currentPage * productsPerPage;
-  const minPage = currentPage * productsPerPage - productsPerPage;
-  return allProducts.slice(minPage, maxPage);
-}
-
-function generateCategories(allProducts) {
-  return [...new Set(allProducts.map((product) => product.category))];
-}
-
-function renderProducts(currentPage = 1) {
-  const loader = $loading.show();
-  axiosWithAuth({
-    method: 'get',
-    url: `products/all`,
-  })
-    .then((res) => {
-      products.value = generateProducts(res.data.products, currentPage);
-      cloudProducts.value = res.data.products;
-      categories.value = generateCategories(res.data.products);
-      pagination.value = generatePagination(res.data.products.length, currentPage);
-    })
-    .finally(() => {
-      loader.hide();
-    });
-}
-
-// Re-render target page provided by pagination component
-function handlePaginationChange(page) {
-  if (selectedCategory.value === 'all') {
-    products.value = generateProducts(cloudProducts.value, page);
-    pagination.value = generatePagination(cloudProducts.value.length, page);
-  } else {
-    products.value = generateProducts(getProductsSortedbyCategory(), page);
-    pagination.value = generatePagination(getProductsSortedbyCategory().length, page);
-  }
-
-  setTimeout(() => {
-    galleryElement.value.scrollIntoView({
-      behavior: 'smooth',
-    });
-  }, 100);
-}
-
-function handleToggleFavoriteProduct(targetId, targetName) {
-  toggleFavoriteProduct(targetId, targetName);
-  favoriteProducts.value = getFavoriteProducts();
-}
-
-// When FavoriteProducts update...
-window.addEventListener('storeProducts', () => {
-  favoriteProducts.value = getFavoriteProducts();
-  renderProducts();
-});
-
-// Init
-renderProducts();
 </script>
