@@ -137,5 +137,4 @@ async function getProduct() {
 }
 
 getProduct();
-console.log('x');
 </script>
