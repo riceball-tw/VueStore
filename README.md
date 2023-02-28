@@ -25,6 +25,8 @@
 ## 使用技術與文件
 
 - [Vite](https://vitejs.dev/) - 以 Vue.js 開發 SPA 網站
+- [Pinia](https://pinia.vuejs.org/) - Vue.js 狀態管理
+- [Pinia plugin persistedstate](https://github.com/prazdevs/pinia-plugin-persistedstate) - Pinia 狀態管理持久化
 - [Tailwind](https://tailwindcss.com/) - Utility CSS Framework
 - [Tailwind Typography](https://tailwindcss.com/docs/typography-plugin) - 文章版面與樣式
 - [Daisy UI](https://daisyui.com/) - 架構基礎 UI
