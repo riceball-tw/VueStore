@@ -44,7 +44,11 @@
           </td>
           <td>
             <div class="btn-group">
-              <button class="btn btn-outline btn-square" @click="openEditArticleModal(article)">
+              <button
+                :disabled="loadingSpecificArticleId.includes(article.id)"
+                class="btn btn-outline btn-square"
+                @click="openEditArticleModal(article)"
+              >
                 <svg
                   v-if="loadingSpecificArticleId.includes(article.id)"
                   fill="currentColor"
