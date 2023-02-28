@@ -1,6 +1,6 @@
 <template>
   <Hero title="部落格" description="一些關於這個網站的部落格描述可撰寫於此。" />
-
+  <div v-if="!articles.length">部落格資料加載中</div>
   <div class="flex flex-wrap m-8 gap-4">
     <div v-for="article in articles" :key="article.id" class="card">
       <div class="card w-96 bg-base-100 shadow-xl">
@@ -26,9 +26,7 @@
 import Hero from '@/components/AppHero.vue';
 import { ref, inject } from 'vue';
 
-// UI Data
 const articles = ref([]);
-
 const axiosWithAuth = inject('axiosWithAuth');
 
 function renderArticles() {
