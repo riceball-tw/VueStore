@@ -1,11 +1,11 @@
 <template>
   <nav
     v-if="pages.total_pages && pages.total_pages !== 1"
-    class="flex justify-center items-center py-8"
+    class="flex justify-center items-center pb-8"
     aria-label="Page Navigation"
   >
     <div class="btn-group">
-      <button class="btn" href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
+      <button v-if="pages.has_pre" class="btn" href="#" aria-label="Previous" @click.prevent="pagePrev(pages)">
         <span aria-hidden="true">&laquo;</span>
       </button>
       <button
@@ -19,7 +19,7 @@
         {{ page }}
       </button>
 
-      <button class="btn" aria-label="Next" @click.prevent="pageNext(pages)">
+      <button v-if="pages.has_next" class="btn" aria-label="Next" @click.prevent="pageNext(pages)">
         <span aria-hidden="true">&raquo;</span>
       </button>
     </div>
@@ -27,8 +27,6 @@
 </template>
 
 <script setup>
-import { useToast } from 'vue-toastification';
-
 const emit = defineEmits(['pagination-change']);
 
 defineProps({
@@ -41,19 +39,11 @@ defineProps({
 });
 
 function pagePrev(pagesData) {
-  if (pagesData.has_pre) {
-    emit('pagination-change', pagesData.current_page - 1);
-  } else {
-    useToast().warning('已經沒有上一頁了');
-  }
+  emit('pagination-change', pagesData.current_page - 1);
 }
 
 function pageNext(pagesData) {
-  if (pagesData.has_next) {
-    emit('pagination-change', pagesData.current_page + 1);
-  } else {
-    useToast().warning('已經沒有下一頁了');
-  }
+  emit('pagination-change', pagesData.current_page + 1);
 }
 
 function pageChange(targetPage) {
