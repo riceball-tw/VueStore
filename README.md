@@ -4,6 +4,26 @@
 
 後端與 API 來源自《[六角學院 Vue 3 實戰影音課程](https://www.hexschool.com/courses/vue3.html)》，於本專案中整合 API 並建構基礎的前後台 UI 供購買者、管理員操作使用。
 
+## 如何執行專案
+
+將下載專案 Zip 檔或將專案 Clone 至本地端
+
+### 安裝專案 dependencies
+
+yarn
+
+###編譯及執行專案（Development 模式）
+
+yarn dev
+
+### 編譯及壓縮（Production 模式）
+
+npm build
+
+### 分析程式碼除錯
+
+npm lint
+
 ## 主要功能
 
 ### 前台
