@@ -23,9 +23,9 @@ export const useFavoriteProductStore = defineStore('favoriteProduct', {
 
     toastFavoriteProduct(targetId, targetTitle) {
       if (this.$state.favoriteProductIDs.includes(targetId)) {
-        useToast().info(`已將 ${targetTitle} 從收藏中移除 `);
-      } else {
         useToast().info(`已將 ${targetTitle} 加入收藏 `);
+      } else {
+        useToast().info(`已將 ${targetTitle} 從收藏中移除 `);
       }
     },
   },
